@@ -1,0 +1,107 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Transform": [
+    "AWS::Serverless-2016-10-31"
+  ],
+  "Globals": {
+    "Function": {
+      "Runtime": "nodejs12.x"
+    }
+  },
+  "Resources": {
+    "Function1": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "CodeUri": ".",
+        "Handler": "src/EventConsumer.handler",
+        "Events": {
+          "MyTestRule": {
+            "Type": "EventBridgeRule",
+            "Properties": {
+              "InputPath": "$.detail.data",
+              "EventBusName": "commerce",
+              "Pattern": {
+                "source": [
+                  "evb-test"
+                ],
+                "detail-type": [
+                  "fruit-event"
+                ],
+                "detail": {
+                  "data": {
+                    "fruit": [
+                      {
+                        "prefix": "pe"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "Function2": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "CodeUri": ".",
+        "Handler": "src/EventHose.handler",
+        "Policies": [
+          {
+            "EventBridgePutEventsPolicy": {
+              "EventBusName": "mybus"
+            }
+          },
+          {
+            "DynamoDBCrudPolicy": {
+              "TableName": {
+                "Ref": "DynamoTable"
+              }
+            }
+          },
+          {
+            "SNSPublishMessagePolicy": {
+              "TopicName": {
+                "Fn::GetAtt": [
+                  "Topic",
+                  "TopicName"
+                ]
+              }
+            }
+          }
+        ],
+        "Environment": {
+          "Variables": {
+            "StackName": {
+              "Ref": "AWS::StackName"
+            },
+            "JoinedThing": {"Fn::Join": [",", [{"Ref": "Topic"}, "woo"]]}
+          }
+        }
+      }
+    },
+    "DynamoTable": {
+      "Type": "AWS::DynamoDB::Table",
+      "Properties": {
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+          {
+            "AttributeName": "Id",
+            "AttributeType": "N"
+          }
+        ],
+        "KeySchema": [
+          {
+            "AttributeName": "Id",
+            "KeyType": "HASH"
+          }
+        ]
+      }
+    },
+    "Topic": {
+      "Type": "AWS::SNS::Topic"
+    }
+  },
+  "Outputs": {}
+}

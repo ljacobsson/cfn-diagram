@@ -1,0 +1,21 @@
+{
+  "name": "@mhalbs/sam-draw",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "sam",
+    "drawio",
+    "cloudformation"
+  ],
+  "author": "mhlabs",
+  "license": "ISC",
+  "dependencies": {
+    "jdom": "^3.1.11",
+    "jest": "^26.0.1",
+    "mxgraph": "^4.1.1"
+  }
+}
