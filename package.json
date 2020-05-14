@@ -1,12 +1,13 @@
 {
-  "name": "@mhalbs/sam-draw",
+  "name": "@mhlabs/cfn-diagram",
   "version": "1.0.0",
-  "description": "",
+  "description": "CLI tool to visualise CloudFormation templates as draw.io diagrams",
   "main": "index.js",
   "scripts": {
     "test": "jest"
   },
   "keywords": [
+    "aws",
     "sam",
     "drawio",
     "cloudformation"
@@ -24,5 +25,7 @@
   "bin": {
     "cfn-diagram": "index.js",
     "cfn-dia": "index.js"
+  },"publishConfig": {
+    "access": "public"
   }
 }

@@ -1,6 +1,6 @@
 # cfn-diagram
 
-CLI tool to visualise a CloudFormation template as a draw.io diagram. Use it in combination with the [Draw.io Integration](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio) for VS Code to instantly visualise your stacks.
+CLI tool to visualise CloudFormation templates as draw.io diagrams. Use it in combination with the [Draw.io Integration](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio) for VS Code to instantly visualise your stacks.
 
 ![Demo](https://raw.githubusercontent.com/mhlabs/cfn-diagram/master/demo.gif)
 
