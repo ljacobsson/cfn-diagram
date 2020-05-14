@@ -3,27 +3,40 @@ const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
 const dom = new JSDOM();
 const jsonUtil = require("../resources/JsonUtil");
+const iconMap = require("../resources/IconMap");
 
 global.window = dom.window;
 global.document = window.document;
 global.XMLSerializer = window.XMLSerializer;
 global.navigator = window.navigator;
 
-var viewerModulePath = "mxgraph";
-const mxgraph = require(viewerModulePath)({
-});
+const mxgraph = require("mxgraph")({});
 
 const { mxGraph, mxCodec, mxUtils } = mxgraph;
 
-function makeGraph(template) {
+const layouts = [
+  { name: "Organic", value: "mxFastOrganicLayout" },
+  { name: "Circle", value: "mxCircleLayout" },
+  { name: "Compact Tree", value: "mxCompactTreeLayout" },
+  { name: "Radial Tree", value: "mxRadialTreeLayout" },
+];
+
+function makeGraph(template, resourceTypesToInclude, layoutChoice) {
   const resources = Object.keys(template.Resources);
 
   const graph = new mxGraph();
-  var parent = graph.getDefaultParent();
+  const layout = new mxgraph[layoutChoice || "mxFastOrganicLayout"](graph);
+  layout.radius = 300;
+  layout.forceConstant = 120;
+  const parent = graph.getDefaultParent();
   const vertices = [];
   graph.getModel().beginUpdate();
   try {
     for (const resource of resources) {
+      const type = template.Resources[resource].Type;
+      if (!resourceTypesToInclude.includes(type)) {
+        continue;
+      }
       const dependencies = [];
       jsonUtil.findAllValues(template.Resources[resource], dependencies, "Ref");
       jsonUtil.findAllValues(
@@ -31,6 +44,15 @@ function makeGraph(template) {
         dependencies,
         "Fn::GetAtt"
       );
+
+      for (const dependency of dependencies) {
+        dependency.value = dependency.value.filter(
+          (p) =>
+            template.Resources[p] &&
+            resourceTypesToInclude.includes(template.Resources[p].Type)
+        );
+      }
+
       vertices.push({
         name: resource,
         dependencies: dependencies,
@@ -38,25 +60,58 @@ function makeGraph(template) {
           parent,
           null,
           resource,
-          Math.random() * 800,
-          Math.random() * 800,
-          80,
-          30
+          70,
+          1,
+          50,
+          50,
+          iconMap.getIcon(type)
         ),
       });
     }
+
     for (const vertex of vertices) {
-      for (const dependencyList of vertex.dependencies) {
-        for (const dependency of dependencyList.value) {
+      for (const dependencyNode of vertex.dependencies) {
+        for (const dependency of dependencyNode.value) {
           const target = vertices.filter((p) => p.name === dependency)[0];
-          const x = graph.insertEdge(
-            parent,
-            null,
-            "",
-            vertex.vertex,
-            target ? target.vertex : null,
-            "edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;"
-          );
+          let from = vertex.vertex;
+          let to = target.vertex;
+
+          if (from && to) {
+            if (dependencyNode.path.indexOf("Properties.Events") > 0) {
+              graph.insertEdge(
+                parent,
+                null,
+                "Event",
+                to,
+                from,
+                "edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;fillColor=#1ba1e2;strokeColor=#006EAF;labelBackgroundColor=none;fontColor=#7EA6E0;"
+              );
+            } else {
+              const edges = graph.getEdges(from);
+              const existing = edges.filter((p) => p.target.value === to.value);
+              if (existing.length > 0) {
+                const edgeValue = pathToDescriptor(dependencyNode.path);
+                if (edgeValue !== null) {
+                  existing[0].setValue(
+                    `${
+                      existing[0].getValue()
+                        ? existing[0].getValue() + "\n"
+                        : ""
+                    }${edgeValue}`
+                  );
+                }
+              } else {
+                graph.insertEdge(
+                  parent,
+                  null,
+                  pathToDescriptor(dependencyNode.path),
+                  from,
+                  to,
+                  "edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;"
+                );
+              }
+            }
+          }
         }
       }
     }
@@ -65,7 +120,21 @@ function makeGraph(template) {
   } finally {
     graph.getModel().endUpdate();
   }
+
+  layout.execute(parent);
   return graph;
+}
+
+function pathToDescriptor(path) {
+  if (path.startsWith("$.Properties.Environment")) {
+    //return "Variable";
+  }
+
+  if (path.startsWith("$.Properties.Policies")) {
+    const split = path.split(".");
+    return split[3];
+  }
+  return null;
 }
 
 function graphToXML(graph) {
@@ -74,11 +143,12 @@ function graphToXML(graph) {
   return mxUtils.getXml(result);
 }
 
-function renderTemplate(template) {
-  const xml = graphToXML(makeGraph(template));
+function renderTemplate(template, resources, layout) {
+  const xml = graphToXML(makeGraph(template, resources, layout));
   return xml;
 }
 
 module.exports = {
   renderTemplate,
+  layouts,
 };

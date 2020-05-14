@@ -76,7 +76,17 @@
             "StackName": {
               "Ref": "AWS::StackName"
             },
-            "JoinedThing": {"Fn::Join": [",", [{"Ref": "Topic"}, "woo"]]}
+            "JoinedThing": {
+              "Fn::Join": [
+                ",",
+                [
+                  {
+                    "Ref": "Topic"
+                  },
+                  "woo"
+                ]
+              ]
+            }
           }
         }
       }

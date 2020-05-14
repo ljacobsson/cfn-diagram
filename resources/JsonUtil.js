@@ -4,7 +4,7 @@ function findAllKeys(obj, keyArray, keyName, path) {
     if (prop === keyName) {
       let value = obj[prop];
       if (Array.isArray(value)) {
-          value = obj[prop][instrisicFunctionIndex(prop)];
+        value = obj[prop][instrisicFunctionIndex(prop)];
       }
 
       if (!Array.isArray(value)) {
@@ -38,13 +38,25 @@ function findAllKeys(obj, keyArray, keyName, path) {
 }
 
 function instrisicFunctionIndex(prop) {
-    switch (prop) {
-        case "Fn::GetAtt": return 0;
-        case "Fn::Join": return 1;        
-    }
-    return 0;
+  switch (prop) {
+    case "Fn::GetAtt":
+      return 0;
+    case "Fn::Join":
+      return 1;
+  }
+  return 0;
+}
+
+function isJson(str) {
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
 }
 
 module.exports = {
   findAllValues: findAllKeys,
+  isJson,
 };
