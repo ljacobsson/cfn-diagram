@@ -3,11 +3,13 @@ const mxGenerator = require("./mxgraph/MxGenerator");
 const program = require("commander");
 const YAML = require("yaml-cfn");
 const fs = require("fs");
+const path = require("path");
 const jsonUtil = require("./resources/JsonUtil");
 const inquirer = require("inquirer");
 const prompt = inquirer.createPromptModule();
 
-program.version("1.0.4", "-v, --vers", "output the current version");
+const package = JSON.parse(fs.readFileSync(path.join(__dirname, "package.json")));
+program.version(package.version, "-v, --vers", "output the current version");
 program
   .command("generate")
   .alias("g")
