@@ -7,7 +7,7 @@ const jsonUtil = require("./resources/JsonUtil");
 const inquirer = require("inquirer");
 const prompt = inquirer.createPromptModule();
 
-program.version("1.0.2", "-v, --vers", "output the current version");
+program.version("1.0.4", "-v, --vers", "output the current version");
 program
   .command("generate")
   .alias("g")
@@ -37,7 +37,7 @@ program
     for (const resource of resources) {
       types.push(template.Resources[resource].Type);
     }
-    types = [...new Set(types)].sort((a, b) => a > b);
+    types = [...new Set(types)].sort();
     let resourceTypes = { answer: types };
     const filterResources = "Filter resources";
     while (true) {
