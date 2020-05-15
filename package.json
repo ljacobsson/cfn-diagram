@@ -27,8 +27,7 @@
     "cfn-dia": "index.js"
   },"publishConfig": {
     "access": "public"
-  },
-  ,
+  },  
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mhlabs/cfn-diagram.git"
