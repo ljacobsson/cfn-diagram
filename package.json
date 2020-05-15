@@ -1,6 +1,6 @@
 {
   "name": "@mhlabs/cfn-diagram",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tool to visualise CloudFormation templates as draw.io diagrams",
   "main": "index.js",
   "scripts": {
@@ -27,5 +27,14 @@
     "cfn-dia": "index.js"
   },"publishConfig": {
     "access": "public"
-  }
+  },
+  ,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mhlabs/cfn-diagram.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mhlabs/cfn-diagram/issues"
+  },
+  "homepage": "https://github.com/mhlabs/cfn-diagram#readme",
 }

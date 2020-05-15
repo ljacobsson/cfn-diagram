@@ -7,7 +7,7 @@ const jsonUtil = require("./resources/JsonUtil");
 const inquirer = require("inquirer");
 const prompt = inquirer.createPromptModule();
 
-program.version("1.0.3", "-v, --vers", "output the current version");
+program.version("1.0.1", "-v, --vers", "output the current version");
 program
   .command("generate")
   .alias("g")
