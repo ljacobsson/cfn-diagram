@@ -5,7 +5,7 @@ CLI tool to visualise CloudFormation templates as draw.io diagrams. Use it in co
 ![Demo](https://raw.githubusercontent.com/mhlabs/cfn-diagram/master/demo.gif)
 
 ## Installation
-`npm i @mhlabs/cfn-diagram`
+`npm i -g @mhlabs/cfn-diagram`
 
 ## Usage
 cfn-dia
