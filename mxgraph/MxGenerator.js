@@ -107,7 +107,7 @@ function makeGraph(template, resourceTypesToInclude, layoutChoice) {
                   pathToDescriptor(dependencyNode.path),
                   from,
                   to,
-                  "edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;"
+                  "edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=#EA6B66;"
                 );
               }
             }
