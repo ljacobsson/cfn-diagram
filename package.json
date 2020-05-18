@@ -18,9 +18,11 @@
     "commander": "^5.1.0",
     "inquirer": "^7.1.0",
     "jdom": "^3.1.11",
-    "jest": "^26.0.1",
     "mxgraph": "^4.1.1",
     "yaml-cfn": "^0.2.3"
+  },
+  "devDependencies": {
+    "jest": "^26.0.1"
   },
   "bin": {
     "cfn-diagram": "index.js",
