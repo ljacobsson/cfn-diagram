@@ -30,8 +30,7 @@ cfn-dia generate -t template.yaml
 * Select only the resource types you want to see. This lets you skip granlar things like roles and policies that might not add to the overview you want to see
 * Navigate through a new differnet layouts
 * Works for both JSON and YAML templates
+* Filter on resource type and/or resource names
 
 ## Known issues
 * Some icons are missing. Working on completing the coverage.
-* Default layouts get quite messy. In the draw.io menu, use the Arrange -> Layout menu for better options
-* Connections between resources are limited to `Ref` and `Fn::GetAtt` intrinsic functions. `Fn::Sub` is coming soon.

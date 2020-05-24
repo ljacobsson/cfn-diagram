@@ -15,6 +15,14 @@ const icons = {
     icon: "mxgraph.aws4.role",
     serviceType: "securityidentitycomplicance",
   },
+  "AWS::SSM::Parameter": {
+    icon: "mxgraph.aws4.parameter_store",
+    serviceType: "managementgovernance",
+  },
+  "AWS::Logs::LogGroup": {
+    icon: "mxgraph.aws4.cloudwatch",
+    serviceType: "managementgovernance",
+  },
 };
 
 const colors = {
@@ -47,8 +55,8 @@ const colors = {
     gradientColor: "#4D72F3",
   },
   networkingcontentdelivery: {
-    fillColor: "#945DF2",
-    gradientColor: "#60A337",
+    fillColor: "#5A30B5",
+    gradientColor: "#945DF2",
   },
   securityidentitycomplicance: {
     fillColor: "#C7131F",
@@ -162,7 +170,8 @@ const serviceTranslation = {
   iam: "identity_and_access_management",
   kms: "key_management_service",
   stepfunctions: "step_functions",
-  events: "eventbridge"
+  events: "eventbridge",
+  logs: "cloudwatch"
 };
 
 function getIcon(type) {
@@ -181,7 +190,6 @@ function getIcon(type) {
       gradientColor: color ? color.gradientColor : "#aaaaaa",
     };
   }
-
   return `outlineConnect=0;fontColor=#B3B3B3;gradientColor=${icon.gradientColor};gradientDirection=north;fillColor=${icon.fillColor};strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=${icon.icon};`;
 }
 

@@ -1,21 +1,37 @@
-function findAllKeys(obj, keyArray, keyName, path) {
+function findAllValues(obj, keyArray, keyName, path) {
   path = path || "$";
   for (const prop of Object.keys(obj)) {
     if (prop === keyName) {
-      let value = obj[prop];
-      if (Array.isArray(value)) {
-        value = obj[prop][instrisicFunctionIndex(prop)];
+      let values = obj[prop];
+      if (Array.isArray(values)) {
+        values = obj[prop][instrisicFunctionIndex(prop)];
       }
 
-      if (!Array.isArray(value)) {
-        value = [value];
+      if (!Array.isArray(values)) {
+        values = [values];
       }
-      if (!value[0].startsWith("AWS::")) {
-        keyArray.push({
+
+      if (prop === "Fn::Sub") {
+        const pattern = /\$\{(.+?)\}/g;
+        let match;
+        const multiValue = [];
+        while ((match = pattern.exec(values[0])) != null) {
+          multiValue.push([match[1].split(".")[0]]);
+        }
+        values = multiValue.map((p) => p[0]);
+      }
+
+      values = [values];
+
+      for (const v of values) {
+        const item = {
           key: prop,
-          value: value,
+          value: v.filter((p) => !p.startsWith("AWS::")),
           path: path,
-        });
+        };
+        if (item.value.length) {
+          keyArray.push(item);
+        }
       }
     }
     if (
@@ -29,10 +45,10 @@ function findAllKeys(obj, keyArray, keyName, path) {
 
     if (Array.isArray(obj[prop])) {
       obj[prop].forEach((child, i) =>
-        findAllKeys(child, keyArray, keyName, `${path}.${prop}`)
+        findAllValues(child, keyArray, keyName, `${path}.${prop}`)
       );
     } else {
-      findAllKeys(obj[prop], keyArray, keyName, `${path}.${prop}`);
+      findAllValues(obj[prop], keyArray, keyName, `${path}.${prop}`);
     }
   }
 }
@@ -57,6 +73,6 @@ function isJson(str) {
 }
 
 module.exports = {
-  findAllValues: findAllKeys,
+  findAllValues,
   isJson,
 };

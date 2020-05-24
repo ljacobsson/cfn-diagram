@@ -86,6 +86,9 @@
                   "woo"
                 ]
               ]
+            },
+            "SubbedThing": {
+              "Fn::Sub": "${DynamoTable.Arn}-${Function1.Arn}-${AWS::StackName}"
             }
           }
         }
