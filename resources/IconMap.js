@@ -11,6 +11,10 @@ const icons = {
     icon: "mxgraph.aws4.api_gateway",
     serviceType: "networkingcontentdelivery",
   },
+  "AWS::Lambda::Permission": {
+    icon: "mxgraph.aws4.policy",
+    serviceType: "securityidentitycomplicance",
+  },
   "AWS::IAM::Role": {
     icon: "mxgraph.aws4.role",
     serviceType: "securityidentitycomplicance",

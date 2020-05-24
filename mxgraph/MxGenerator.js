@@ -4,6 +4,7 @@ const { JSDOM } = jsdom;
 const dom = new JSDOM();
 const jsonUtil = require("../resources/JsonUtil");
 const iconMap = require("../resources/IconMap");
+const filterConfig = require("../resources/FilterConfig");
 global.window = dom.window;
 global.document = window.document;
 global.XMLSerializer = window.XMLSerializer;
@@ -26,7 +27,7 @@ let forceLayoutRender = true;
 let locationCache = {};
 const graph = new mxGraph();
 const parent = graph.getDefaultParent();
-function makeGraph(template, resourceTypesToInclude, resourceNamesToInclude) {
+function makeGraph(template) {
   const layout = new mxgraph[currentLayout](graph, true, 500);
   const resources = Object.keys(template.Resources);
   layout.orientation = "west";
@@ -41,8 +42,8 @@ function makeGraph(template, resourceTypesToInclude, resourceNamesToInclude) {
     for (const resource of resources) {
       const type = template.Resources[resource].Type;
       if (
-        !resourceTypesToInclude.includes(type) ||
-        !resourceNamesToInclude.includes(resource)
+        !filterConfig.resourceTypesToInclude.includes(type) ||
+        !filterConfig.resourceNamesToInclude.includes(resource)
       ) {
         updateFilters(type, resource);
         continue;
@@ -50,8 +51,7 @@ function makeGraph(template, resourceTypesToInclude, resourceNamesToInclude) {
 
       const dependencies = getDependencies(
         template,
-        resource,
-        resourceTypesToInclude
+        resource
       );
 
       addVertices(resource, dependencies, type);
@@ -88,7 +88,9 @@ function addEdges(from, to, dependencyNode) {
     );
     if (existingEdges.length > 0) {
       const existingEdge = graph.model.cells[existingEdges[0]];
-      if (!existingEdge.value.includes(pathToDescriptor(dependencyNode.path))) {
+      if (filterConfig.edgeMode === "Off") {
+        existingEdge.value = "";
+      } else if (!existingEdge.value.includes(pathToDescriptor(dependencyNode.path))) {
         existingEdge.value += `\n${pathToDescriptor(dependencyNode.path)}`;
       }
       return;
@@ -135,7 +137,7 @@ function addVertices(resource, dependencies, type) {
   }
 }
 
-function getDependencies(template, resource, resourceTypesToInclude) {
+function getDependencies(template, resource) {
   const dependencies = [];
   jsonUtil.findAllValues(template.Resources[resource], dependencies, "Ref");
   jsonUtil.findAllValues(
@@ -147,7 +149,7 @@ function getDependencies(template, resource, resourceTypesToInclude) {
     dependency.value = dependency.value.filter(
       (p) =>
         template.Resources[p] &&
-        resourceTypesToInclude.includes(template.Resources[p].Type)
+        filterConfig.resourceTypesToInclude.includes(template.Resources[p].Type)
     );
   }
   return dependencies;
@@ -175,16 +177,19 @@ function edgeId(to, from) {
   return `${to.value}|${from.value}`; //|${pathToDescriptor(dependencyNode.path)}`;
 }
 
-function pathToDescriptor(path) {
+function pathToDescriptor(path) {  
+  if (filterConfig.edgeMode === "Off") {
+    return "";
+  }
   if (path.startsWith("$.Properties.Environment")) {
-    return path.split(".").slice(-1)[0];
+    return "Variable";
   }
 
   if (path.startsWith("$.Properties.Policies")) {
     const split = path.split(".");
     return split[3];
   }
-  return "";
+  return path.split(".").slice(-1)[0];
 }
 
 function graphToXML(graph) {
@@ -197,8 +202,8 @@ function graphToXML(graph) {
           </mxfile>`;
 }
 
-function renderTemplate(template, resourceTypes, resourceNames) {
-  const xml = graphToXML(makeGraph(template, resourceTypes, resourceNames)) 
+function renderTemplate(template) {
+  const xml = graphToXML(makeGraph(template)) 
   return xml;
 }
 

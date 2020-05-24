@@ -5,16 +5,19 @@ const YAML = require("yaml-cfn");
 const fs = require("fs");
 const path = require("path");
 const jsonUtil = require("./resources/JsonUtil");
+const filterConfig = require("./resources/FilterConfig")
 const inquirer = require("inquirer");
 const prompt = inquirer.createPromptModule();
 
-const package = JSON.parse(fs.readFileSync(path.join(__dirname, "package.json")));
+const package = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "package.json"))
+);
 
 const actionOption = {
   FilterResourceTypes: "Filter resources by type",
   FilterResourceName: "Filter resources by name",
-  ChangeLayout: "Change layout"
-}
+  EdgeLabels: "Edge labels: On",
+};
 
 program.version(package.version, "-v, --vers", "output the current version");
 program
@@ -49,17 +52,24 @@ program
     types = [...new Set(types)].sort();
     let resourceTypes = { answer: types };
     let resourceNames = { answer: resources };
+    let edgeMode = { answer: "On" };
     let actionChoice = {};
     while (true) {
-      const xml = mxGenerator.renderTemplate(template, resourceTypes.answer, resourceNames.answer);
+      filterConfig.resourceNamesToInclude = resourceNames.answer;
+      filterConfig.resourceTypesToInclude = resourceTypes.answer;
+      filterConfig.edgeMode = edgeMode.answer;
+
+      const xml = mxGenerator.renderTemplate(
+        template
+      );
       fs.writeFileSync(cmd.outputFile, xml);
-      
+
       actionChoice = await prompt({
         message: "Options",
         choices: [
           actionOption.FilterResourceTypes,
           actionOption.FilterResourceName,
-          //actionOption.ChangeLayout
+          actionOption.EdgeLabels
         ],
         type: "list",
         name: "answer",
@@ -84,7 +94,18 @@ program
             name: "answer",
           });
           break;
-        }        
+        case actionOption.EdgeLabels:
+          edgeMode = await prompt({
+            message: "Toggle edge labels",
+            choices: ["On", "Off"],
+            default: resourceNames.answer,
+            type: "list",
+            name: "answer",
+          });
+        actionOption.EdgeLabels = `Edge labels: ${edgeMode.answer}`;
+          break;          
+      }
+
     }
   });
 
