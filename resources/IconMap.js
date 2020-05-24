@@ -23,6 +23,31 @@ const icons = {
     icon: "mxgraph.aws4.cloudwatch",
     serviceType: "managementgovernance",
   },
+  "AWS::EC2::Route": {
+    icon: "mxgraph.aws4.route_table",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::EC2::RouteTable": {
+    icon: "mxgraph.aws4.route_table",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::EC2::SubnetRouteTableAssociation": {
+    icon: "mxgraph.aws4.route_table",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::EC2::VPC": {
+    icon: "mxgraph.aws4.vpc",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::EC2::NatGateway": {
+    icon: "mxgraph.aws4.nat_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::EC2::EIP": {
+    icon: "mxgraph.aws4.elastic_ip_address",
+    serviceType: "networkingcontentdelivery",
+  }
+  
 };
 
 const colors = {
