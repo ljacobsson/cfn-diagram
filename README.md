@@ -1,4 +1,5 @@
 # cfn-diagram
+![Node.js CI](https://github.com/mhlabs/cfn-diagram/workflows/Node.js%20CI/badge.svg)
 
 CLI tool to visualise CloudFormation templates as draw.io diagrams. Use it in combination with the [Draw.io Integration](https://marketplace.visualstudio.com/items?itemName=hediet.vscode-drawio) for VS Code to instantly visualise your stacks.
 
