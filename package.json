@@ -1,6 +1,6 @@
 {
   "name": "@mhlabs/cfn-diagram",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "CLI tool to visualise CloudFormation templates as draw.io diagrams",
   "main": "index.js",
   "scripts": {

@@ -54,6 +54,8 @@ program
     let resourceNames = { answer: resources };
     let edgeMode = { answer: "On" };
     let actionChoice = {};
+    console.log("Writing diagram to ./template.drawio");
+    console.log("Press CTRL+C to exit");
     while (true) {
       filterConfig.resourceNamesToInclude = resourceNames.answer;
       filterConfig.resourceTypesToInclude = resourceTypes.answer;
