@@ -25,8 +25,16 @@ let currentLayout = "mxHierarchicalLayout";
 let vertices = [];
 let forceLayoutRender = true;
 let locationCache = {};
-const graph = new mxGraph();
-const parent = graph.getDefaultParent();
+let graph = new mxGraph();
+let parent = graph.getDefaultParent();
+
+function reset() {
+  graph = new mxGraph();
+  parent = graph.getDefaultParent();
+  vertices = [];
+  locationCache = {};
+  }
+
 function makeGraph(template) {
   const layout = new mxgraph[currentLayout](graph, true, 500);
   const resources = Object.keys(template.Resources);
@@ -210,4 +218,5 @@ function renderTemplate(template) {
 module.exports = {
   renderTemplate,
   layouts,
+  reset
 };
