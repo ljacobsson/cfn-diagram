@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      #mynetwork {
+        width: 100%;
+        height: 100vh;
+        border: 1px solid lightgray;
+      }
+      .body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      #wssOutput {
+        right: 0px;
+        top: 0px;
+        height: 100vh;
+        width: 30%;
+        background-color: rgba(80, 197, 251, 0.7);
+        border: blue 4px;
+        z-index: 2999;
+        position: absolute;
+        font-family: "Courier New", Courier, monospace;
+        overflow: scroll;
+      }
+    </style>
+    <script
+      type="text/javascript"
+      src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"
+    ></script>
+
+    <script src="./data.js"></script>
+
+    <script
+      type="text/javascript"
+      src="../../../standalone/umd/vis-network.min.js"
+    ></script>
+
+    <script type="text/javascript">
+      let network;
+      let token = uuidv4();      
+      let socket;
+      const rule = {
+        EventPattern: '{"source":["aws.events"]}',
+        EventBusName: "default",
+        Target: "MyFunction",
+        Name: "AllAWSEvents -> MyFunction",
+        InputPath: undefined,
+        Input: undefined,
+        InputTransformer: {
+          InputPathsMap: {
+            source: "$.source",
+            detailType: "$.detail-type",
+            time: "$.time",
+          },
+          InputTemplate:
+            '{"source": <source>, "detail-type": <detailType>, "time": <time> }',
+        },
+      };
+
+      function uuidv4() {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+          /[xy]/g,
+          function (c) {
+            var r = (Math.random() * 16) | 0,
+              v = c == "x" ? r : (r & 0x3) | 0x8;
+            return v.toString(16);
+          }
+        );
+      }
+
+      function draw() {
+        // create a network
+        var container = document.getElementById("mynetwork");
+        var data = {
+          nodes: nodes,
+          edges: edges,
+        };
+        var options = {
+          nodes: {
+            shape: "dot",
+            size: 16,
+          },
+          edges: {
+            arrows: {
+              to: {
+                enabled: true,
+                imageHeight: undefined,
+                imageWidth: undefined,
+                scaleFactor: 1,
+                src: undefined,
+                type: "arrow",
+              },
+            },
+          },
+          physics: {
+            forceAtlas2Based: {
+              gravitationalConstant: -26,
+              centralGravity: 0.005,
+              springLength: 230,
+              springConstant: 0.18,
+            },
+            maxVelocity: 146,
+            solver: "forceAtlas2Based",
+            timestep: 0.35,
+            stabilization: { iterations: 150 },
+          },
+        };
+        network = new vis.Network(container, data, options);
+        network.on("selectEdge", function (params) {          
+          if (socket) {
+            socket.close();
+          }
+          socket = new WebSocket(wssUrl);
+          socket.onopen = function (e) {
+            token = uuidv4();
+            const edge = edges.get(params.edges[0]);
+            socket.send(
+              JSON.stringify({
+                action: "register",
+                token: token,
+                localRule: edge.rule,
+                targetId: edge.rule.Target.Id,
+              })
+            );
+            socket.onmessage = function (event) {
+              if (event.data.startsWith("Connect")) {
+                document.getElementById(
+                  "feed"
+                ).innerHTML += `Subscribing to ${JSON.stringify(
+                  JSON.parse(edge.rule.EventPattern),
+                  null,
+                  2
+                )} <br>`;
+              } else {
+                const body = JSON.parse(event.data).Body;
+                document.getElementById(
+                  "feed"
+                ).innerHTML += `*****${new Date().toISOString()}*****<br>${JSON.stringify(
+                  body,
+                  null,
+                  2
+                )}<br>`;
+              }
+              var messageBody = document.querySelector("#wssOutput");
+              messageBody.scrollTop =
+                messageBody.scrollHeight - messageBody.clientHeight;
+            };
+          };
+        });
+        network.body.emitter.emit("_dataChanged");
+      }
+      window.addEventListener("load", function (event) {
+        const set = new Set();
+        for (const resource of tags) {
+          for (const tagArray of resource.tagArray) {
+            set.add(tagArray.key);
+          }
+        }
+        document.getElementById("tagGroup").innerHTML =
+          "<option>Please select tag</option>";
+        document.getElementById("tagFilter").innerHTML =
+          "<option>Include all</option>";
+
+        for (const tag of Array.from(set).sort()) {
+          document.getElementById("tagGroup").innerHTML +=
+            "<option>" + tag + "</option>";
+          document.getElementById("tagFilter").innerHTML +=
+            "<option>" + tag + "</option>";
+        }
+        document
+          .getElementById("tagGroup")
+          .addEventListener("change", groupByTag);
+        document
+          .getElementById("tagFilter")
+          .addEventListener("change", getFilterValues);
+        document
+          .getElementById("tagFilterValue")
+          .addEventListener("change", filterByTag);
+      });
+
+      function filterByTag(event) {
+        const tag = document.getElementById("tagFilter").value;
+        const tagValue = event.target.value;
+        nodes = new vis.DataSet(nodes.get({ filter: (p) => !p.tagRelation }));
+        edges = new vis.DataSet(edges.get({ filter: (p) => !p.tagRelation }));
+        network.setData({ nodes, edges });
+        const filtered = [];
+        for (const resource of tags) {
+          const targetName = resource.targetName;
+          const tagArrayValue = resource.tagArray.filter(
+            (p) => p.key === tag && p.value === tagValue
+          )[0];
+          if (tagArrayValue) {
+            filtered.push(targetName);
+          }
+        }
+        for (const node of nodes.get()) {
+          if (!filtered.includes(node.id) && !node.sourceNode) {
+            nodes.update({ id: node.id, hidden: true });
+          } else {
+            nodes.update({ id: node.id, hidden: false });
+          }
+        }
+        network.redraw();
+      }
+      function getFilterValues(event) {
+        document.getElementById("tagFilterValue").innerHTML = "";
+        if (event.target.value === "Include all") {
+          filterByTag(event);
+          return;
+        }
+        const values = new Set();
+        for (const resource of tags) {
+          if (resource.tagArray) {
+            const val = resource.tagArray.filter(
+              (p) => p.key === event.target.value
+            )[0];
+            if (val) {
+              values.add(val.value);
+            }
+          }
+        }
+        document.getElementById("tagFilterValue").innerHTML = "";
+        for (const value of Array.from(values)) {
+          document.getElementById("tagFilterValue").innerHTML +=
+            "<option>" + value + "</option>";
+        }
+      }
+
+      function groupByTag(event) {
+        const tag = event.target.value;
+        nodes = new vis.DataSet(nodes.get({ filter: (p) => !p.tagRelation }));
+        edges = new vis.DataSet(edges.get({ filter: (p) => !p.tagRelation }));
+        network.setData({ nodes, edges });
+        for (const resource of tags) {
+          const targetName = resource.targetName;
+          const tagArrayValue = resource.tagArray.filter(
+            (p) => p.key === tag
+          )[0];
+          let tagValue =
+            tagArrayValue && tagArrayValue ? tagArrayValue.value : "untagged";
+          if (
+            tagValue &&
+            nodes.get({ filter: (p) => p.id === tagValue }).length === 0
+          ) {
+            nodes.add({
+              id: tagValue,
+              group: tagValue,
+              value: 10,
+              tagRelation: true,
+              label: tagValue,
+              shape: "image",
+              image: createTagImage(),
+            });
+          }
+          edges.add({
+            from: tagValue,
+            to: targetName,
+            arrows: { to: false },
+            length: 40,
+            dashes: true,
+            tagRelation: true,
+          });
+          network.redraw();
+        }
+      }
+
+      function createTagImage() {
+        var svg =
+          '<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"	 viewBox="0 0 348.1 348.1" style="enable-background:new 0 0 348.1 348.1;" xml:space="preserve"><path style="fill:#FFE53C;" d="M308.1,8.85h-108c-8.4,0-16.4,3.2-22.4,9.2L17.3,177.65c-12.4,12.4-12.4,32.8,0,45.2l107.2,107.2	c12.4,12.4,32.8,12.4,45.2,0l160.8-160.4c6-6,9.6-14,9.6-22.8v-106C340.1,23.25,325.7,8.85,308.1,8.85z M260.1,120.85	c-17.6,0-32-14.4-32-32s14.4-32,32-32s32,14.4,32,32S277.7,120.85,260.1,120.85z"/><path style="fill:#F2CB2C;" d="M334.1,22.05v64.8c0,9.6-4,18.8-10.4,25.6l-181.6,180.8c-14,14-36.8,14-50.8,0l-81.2-81.2	c1.6,4,4,8,7.2,11.2l107.2,107.2c12.4,12.4,32.8,12.4,45.2,0l160.8-160.4c6-6,9.6-14,9.6-22.8V40.85	C340.1,34.05,337.7,27.65,334.1,22.05z"/><path style="fill:#C39215;" d="M147.3,347.25c-10.8,0-20.8-4-28.4-11.6L11.7,228.45c-15.6-15.6-15.6-40.8,0-56.4l160.4-159.6	c7.6-7.6,17.2-11.6,28-11.6h108c22,0,40,18,40,40v106c0,10.8-4.4,20.8-12,28.4l-160.8,160.4C167.7,343.25,157.7,347.25,147.3,347.25	z M200.1,16.85c-6.4,0-12.4,2.4-16.8,6.8L22.9,183.25c-9.2,9.2-9.2,24.4,0,34l107.2,107.2c4.4,4.4,10.4,6.8,16.8,6.8	s12.4-2.4,16.8-6.8l160.8-160.4c4.8-4.8,7.2-10.8,7.2-17.2v-106c0-13.2-10.8-24-24-24H200.1z M260.1,128.85c-22,0-40-18-40-40	s18-40,40-40s40,18,40,40S282.1,128.85,260.1,128.85z M260.1,64.85c-13.2,0-24,10.8-24,24s10.8,24,24,24s24-10.8,24-24	S273.3,64.85,260.1,64.85z"/><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g><g></g></svg>';
+        return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+      }
+    </script>
+  </head>
+
+  <body onload="draw()">
+    <div id="mynetwork"></div>
+  </body>
+</html>

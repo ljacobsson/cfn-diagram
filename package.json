@@ -1,7 +1,7 @@
 {
   "name": "@mhlabs/cfn-diagram",
-  "version": "1.0.10",
-  "description": "CLI tool to visualise CloudFormation templates as draw.io diagrams",
+  "version": "1.1.0",
+  "description": "CLI tool to visualise CloudFormation templates as draw.io or HTML diagrams",
   "main": "index.js",
   "scripts": {
     "test": "jest"
@@ -15,11 +15,14 @@
   "author": "mhlabs",
   "license": "ISC",
   "dependencies": {
+    "color-hash": "^1.0.3",
     "commander": "^5.1.0",
     "inquirer": "^7.1.0",
     "jdom": "^3.1.11",
     "jsdom": "^16.2.2",
     "mxgraph": "^4.1.1",
+    "open": "^7.2.1",
+    "temp-dir": "^2.0.0",
     "yaml-cfn": "^0.2.3"
   },
   "devDependencies": {
