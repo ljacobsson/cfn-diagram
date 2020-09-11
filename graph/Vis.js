@@ -2,7 +2,6 @@
 const jsonUtil = require("../resources/JsonUtil");
 const icons = require("./ui/icons");
 const filterConfig = require("../resources/FilterConfig");
-const { TestScheduler } = require("jest");
 const tempDirectory = require("temp-dir");
 const fs = require("fs");
 const path = require("path");
