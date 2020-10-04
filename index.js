@@ -11,7 +11,7 @@ const tempDirectory = require("temp-dir");
 const Vis = require("./graph/Vis");
 const prompt = inquirer.createPromptModule();
 
-const package = require("./package.json")
+const package = require("./package.json");
 
 const actionOption = {
   FilterResourceTypes: "Filter resources by type",
@@ -142,8 +142,21 @@ function getTemplate(cmd) {
     );
     process.exit(1);
   }
-  const isJson = jsonUtil.isJson(templateString)
+
+  const isJson = jsonUtil.isJson(templateString);
   const parser = isJson ? JSON.parse : YAML.yamlParse;
+
   const template = parser(templateString);
+  Object.keys(template.Resources)
+    .filter((p) => template.Resources[p].Type === "AWS::CloudFormation::Stack")
+    .map((p) => {
+      const res = template.Resources[p];
+      if (!res.Properties.TemplateURL.startsWith("s3://")) {
+        templateString = fs.readFileSync(res.Properties.TemplateURL);
+        const isJson = jsonUtil.isJson(templateString);
+        const parser = isJson ? JSON.parse : YAML.yamlParse;
+        template.Resources[p].Template = parser(templateString);
+      }
+    });
   return { isJson, template };
 }

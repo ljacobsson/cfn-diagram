@@ -11,42 +11,52 @@ const { yamlParse, yamlDump } = require("yaml-cfn");
 const colorHash = new ColorHash();
 let nodes = [];
 let edges = [];
+let nested = [];
+let types = new Set();
 let useJson;
 
 function reset() {
   nodes = [];
   edges = [];
+  nested = [];
+  types = new Set();
 }
 
-function makeGraph(template) {
+function makeGraph(template, prefix) {
   const resources = Object.keys(template.Resources);
   try {
     for (const resource of resources) {
-      const type = template.Resources[resource].Type;
-      //   if (
-      //     !filterConfig.resourceTypesToInclude.includes(type) ||
-      //     !filterConfig.resourceNamesToInclude.includes(resource)
-      //   ) {
-      //     updateFilters(type, resource);
-      //     continue;
-      //   }
-
+      const resObj = template.Resources[resource];
+      const type = resObj.Type;
+      types.add(type);
+      if (resObj.Template) {
+        nested.push(resource);
+        makeGraph(resObj.Template, resource);
+      }
       const dependencies = getDependencies(template, resource);
 
-      addnodes(resource, dependencies, type, template.Resources[resource]);
+      addnodes(
+        resource,
+        dependencies,
+        type,
+        template.Resources[resource],
+        prefix
+      );
     }
 
     for (const sourceVertex of nodes) {
       for (const dependencyNode of sourceVertex.dependencies) {
         for (const dependency of dependencyNode.value) {
-          const targets = nodes.filter((p) => p.id === dependency);
+          const targets = nodes.filter(
+            (p) => p.id === prefix + "." + dependency
+          );
           const targetVertex = targets[0];
           if (!targetVertex) {
             continue;
           }
           let from = sourceVertex.id;
           let to = targetVertex.id;
-          addEdges(from, to, dependencyNode, sourceVertex);
+          addEdges(from, to, dependencyNode, sourceVertex, prefix);
         }
       }
     }
@@ -57,7 +67,7 @@ function makeGraph(template) {
   return { nodes, edges };
 }
 
-function addEdges(from, to, dependencyNode, fromNode) {
+function addEdges(from, to, dependencyNode, fromNode, prefix) {
   if (from && to) {
     if (dependencyNode.path.indexOf("Properties.Events") > 0) {
       edges.push({
@@ -67,29 +77,44 @@ function addEdges(from, to, dependencyNode, fromNode) {
       });
     } else {
       const descriptor = pathToDescriptor(dependencyNode.path);
+      if (
+        edges.filter(
+          (p) => p.from === from && p.to === to && p.label === descriptor
+        ).length
+      ) {
+        return;
+      }
+
       edges.push({
         from,
         to,
         label: descriptor,
         color: {
-          color: colorHash.hex(descriptor)
-        }
+          color: colorHash.hex(descriptor),
+        },
       });
     }
   }
 }
 
-function addnodes(resource, dependencies, type, resourceObject) {
+function addnodes(resource, dependencies, type, resourceObject, prefix) {
+  delete resourceObject.Template;
   if (nodes.filter((p) => p.id === resource).length === 0) {
     nodes.push({
-      id: resource,
+      id: `${prefix}.${resource}`,
       dependencies: dependencies,
+      prefix: prefix,
+      hidden: prefix != "root",
       type: type,
       label: resource,
       shape: "image",
       image: createImage(type),
-      title: `<pre>${useJson ? JSON.stringify(resourceObject, null, 2) : yamlDump(resourceObject)}</pre>`,
-      resource: resourceObject
+      title: `<pre>${
+        useJson
+          ? JSON.stringify(resourceObject, null, 2)
+          : yamlDump(resourceObject).replace(/>/g, "").replace(/</g, "")
+      }</pre>`,
+      resource: resourceObject,
     });
   }
 }
@@ -104,6 +129,7 @@ function createImage(resourceType) {
 function getDependencies(template, resource) {
   const dependencies = [];
   jsonUtil.findAllValues(template.Resources[resource], dependencies, "Ref");
+  jsonUtil.findAllValues(template.Resources[resource], dependencies, "Fn::Sub");
   jsonUtil.findAllValues(
     template.Resources[resource],
     dependencies,
@@ -113,10 +139,6 @@ function getDependencies(template, resource) {
     dependency.value = dependency.value.filter((p) => template.Resources[p]);
   }
   return dependencies;
-}
-
-function edgeId(to, from) {
-  return `${to.value}|${from.value}`; 
 }
 
 function pathToDescriptor(path) {
@@ -136,11 +158,13 @@ function pathToDescriptor(path) {
 
 function renderTemplate(template, isJson) {
   useJson = isJson;
-  const { nodes, edges } = makeGraph(template);
+  const { nodes, edges } = makeGraph(template, "root");
   const fileContent = `
   
   var nodes = new vis.DataSet(${JSON.stringify(nodes)});
   var edges = new vis.DataSet(${JSON.stringify(edges)});
+  var nested = ${JSON.stringify(nested.sort())};
+  var types = ${JSON.stringify(Array.from(types).sort())};
   `;
   const uiPath = path.join(tempDirectory, "cfn-diagram");
   if (!fs.existsSync(uiPath)) {
