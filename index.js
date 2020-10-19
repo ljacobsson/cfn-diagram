@@ -43,14 +43,14 @@ program
     "template.yml"
   )
   .option(
-    "-o, --output-file [outputFile]",
+    "-o, --output-path [outputPath]",
     "Output file",
-    `${path.join(tempDirectory, "cfn-diagram", "index.html")}`
+    `${path.join(tempDirectory, "cfn-diagram")}`
   )
   .description("Generates a vis.js diagram from a CloudFormation template")
   .action(async (cmd) => {
     const template = getTemplate(cmd);
-    await Vis.renderTemplate(template.template, template.isJson);
+    await Vis.renderTemplate(template.template, template.isJson, cmd.outputPath);
   });
 program
   .command("generate")

@@ -156,7 +156,7 @@ function pathToDescriptor(path) {
   return path.split(".").slice(-1)[0];
 }
 
-function renderTemplate(template, isJson) {
+function renderTemplate(template, isJson, filePath) {
   useJson = isJson;
   const { nodes, edges } = makeGraph(template, "root");
   const fileContent = `
@@ -166,7 +166,7 @@ function renderTemplate(template, isJson) {
   var nested = ${JSON.stringify(nested.sort())};
   var types = ${JSON.stringify(Array.from(types).sort())};
   `;
-  const uiPath = path.join(tempDirectory, "cfn-diagram");
+  const uiPath = filePath || path.join(tempDirectory, "cfn-diagram");
   if (!fs.existsSync(uiPath)) {
     fs.mkdirSync(uiPath);
   }
