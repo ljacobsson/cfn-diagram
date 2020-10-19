@@ -51,3 +51,4 @@ cfn-dia html -t template.yaml
 
 ## Known issues
 * Some icons are missing. Working on completing the coverage.
+* When using WSL you might experience `Error: spawn wslvar ENOENT` when trying to use HTML output. To resolve, install [wslu](https://github.com/wslutilities/wslu). See issue #9.
