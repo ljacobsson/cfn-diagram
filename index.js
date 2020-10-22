@@ -151,7 +151,7 @@ function getTemplate(cmd) {
     .filter((p) => template.Resources[p].Type === "AWS::CloudFormation::Stack")
     .map((p) => {
       const res = template.Resources[p];
-      if (!res.Properties.TemplateURL.startsWith("s3://")) {
+      if (typeof res.Properties.TemplateURL === "string" && !res.Properties.TemplateURL.startsWith("s3://")) {
         templateString = fs.readFileSync(res.Properties.TemplateURL);
         const isJson = jsonUtil.isJson(templateString);
         const parser = isJson ? JSON.parse : YAML.yamlParse;
