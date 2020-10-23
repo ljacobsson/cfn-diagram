@@ -8,6 +8,8 @@ const path = require("path");
 const open = require("open");
 const ColorHash = require("color-hash");
 const { yamlParse, yamlDump } = require("yaml-cfn");
+const Pageres = require('pageres');
+
 const colorHash = new ColorHash();
 let nodes = [];
 let edges = [];
@@ -156,7 +158,7 @@ function pathToDescriptor(path) {
   return path.split(".").slice(-1)[0];
 }
 
-function renderTemplate(template, isJson, filePath) {
+async function renderTemplate(template, isJson, filePath, outputType, imagePath) {
   useJson = isJson;
   const { nodes, edges } = makeGraph(template, "root");
   const fileContent = `
@@ -165,6 +167,7 @@ function renderTemplate(template, isJson, filePath) {
   var edges = new vis.DataSet(${JSON.stringify(edges)});
   var nested = ${JSON.stringify(nested.sort())};
   var types = ${JSON.stringify(Array.from(types).sort())};
+  var showSidebar = ${outputType === "html"};
   `;
   const uiPath = filePath || path.join(tempDirectory, "cfn-diagram");
   if (!fs.existsSync(uiPath)) {
@@ -179,7 +182,14 @@ function renderTemplate(template, isJson, filePath) {
     path.join(uiPath, "icons.js")
   );
   fs.writeFileSync(path.join(uiPath, "data.js"), fileContent);
-  open(path.join(uiPath, "index.html"));
+  if (outputType === "html") {
+    open(path.join(uiPath, "index.html"));
+  } else {
+    await new Pageres({filename: "cfn-diagram"})
+		.src(`file://${path.join(uiPath, "index.html")}`, ['1024x768'], {crop: true})
+		.dest(imagePath)
+		.run()
+  }
 }
 
 module.exports = {

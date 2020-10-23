@@ -48,6 +48,16 @@ The HTML output uses [vis.js](https://github.com/visjs/vis-network) to generate 
 cfn-dia html -t template.yaml
 ```
 
+### Image
+Uses [pageres](https://github.com/sindresorhus/pageres) to generate a screenshot of a HTML diagram. This can be used in a CI/CD pipeline to keep an always up-to-date diagram in your readme-file.
+
+![Demo](https://raw.githubusercontent.com/mhlabs/cfn-diagram/master/demo-image.gif)
+
+#### Example 
+```
+cfn-dia image -t template.yaml
+```
+
 
 ## Known issues
 * Some icons are missing. Working on completing the coverage.

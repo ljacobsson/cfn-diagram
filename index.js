@@ -27,7 +27,7 @@ program
   .option(
     "-t, --template-file [templateFile]",
     "Path to template",
-    "template.yml"
+    "template.yaml"
   )
   .option("-o, --output-file [outputFile]", "Output file", "template.drawio")
   .description("Generates a draw.io diagram from a CloudFormation template")
@@ -40,7 +40,7 @@ program
   .option(
     "-t, --template-file [templateFile]",
     "Path to template",
-    "template.yml"
+    "template.yaml"
   )
   .option(
     "-o, --output-path [outputPath]",
@@ -50,7 +50,25 @@ program
   .description("Generates a vis.js diagram from a CloudFormation template")
   .action(async (cmd) => {
     const template = getTemplate(cmd);
-    await Vis.renderTemplate(template.template, template.isJson, cmd.outputPath);
+    await Vis.renderTemplate(template.template, template.isJson, cmd.outputPath, "html");
+  });
+program
+  .command("image")
+  .alias("i")
+  .option(
+    "-t, --template-file [templateFile]",
+    "Path to template",
+    "template.yaml"
+  )
+  .option(
+    "-o, --output-path [outputPath]",
+    "Output path",
+    `./`
+  )
+  .description("Generates a vis.js diagram from a CloudFormation template")
+  .action(async (cmd) => {
+    const template = getTemplate(cmd);
+    await Vis.renderTemplate(template.template, template.isJson, `${path.join(tempDirectory, "cfn-diagram")}`, "image", cmd.outputPath);
   });
 program
   .command("generate")
@@ -58,7 +76,7 @@ program
   .option(
     "-t, --template-file [templateFile]",
     "Path to template",
-    "template.yml"
+    "template.yaml"
   )
   .option("-o, --output-file [outputFile]", "Output file", "template.drawio")
   .description("[Deprected] Same as draw.io. Kept for backward compatability")

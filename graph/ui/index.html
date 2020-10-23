@@ -131,6 +131,9 @@
     </div>
     <script>
       window.onload = function (event) {
+        if (!showSidebar) {
+          document.getElementById("filtersContainer").hidden = true;
+        }
         populateFilters("nested-stacks", nested, false, (x) => {
           const ns = nodes.get({ filter: (p) => p.prefix === x.target.value });
           for (const n of ns) {
