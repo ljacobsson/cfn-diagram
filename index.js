@@ -19,6 +19,8 @@ const actionOption = {
   EdgeLabels: "Edge labels: On",
 };
 
+let ciMode = false;
+
 program.version(package.version, "-v, --vers", "output the current version");
 
 program
@@ -29,9 +31,16 @@ program
     "Path to template",
     "template.yaml"
   )
+  .option(
+    "-c, --ci-mode",
+    "Disable interactivity",
+    false
+  )
   .option("-o, --output-file [outputFile]", "Output file", "template.drawio")
   .description("Generates a draw.io diagram from a CloudFormation template")
   .action(async (cmd) => {
+    ciMode = cmd.ciMode;
+
     await generate(cmd);
   });
 program
@@ -43,44 +52,34 @@ program
     "template.yaml"
   )
   .option(
+    "-c, --ci-mode",
+    "Disable interactivity",
+    false
+  )
+  .option(
     "-o, --output-path [outputPath]",
     "Output file",
     `${path.join(tempDirectory, "cfn-diagram")}`
   )
   .description("Generates a vis.js diagram from a CloudFormation template")
   .action(async (cmd) => {
+    ciMode = cmd.ciMode;
     const template = getTemplate(cmd);
-    await Vis.renderTemplate(template.template, template.isJson, cmd.outputPath, "html");
+    await Vis.renderTemplate(template.template, template.isJson, cmd.outputPath, ciMode);
   });
-program
-  .command("image")
-  .alias("i")
-  .option(
-    "-t, --template-file [templateFile]",
-    "Path to template",
-    "template.yaml"
-  )
-  .option(
-    "-o, --output-path [outputPath]",
-    "Output path",
-    `./`
-  )
-  .description("Generates a vis.js diagram from a CloudFormation template")
-  .action(async (cmd) => {
-    const template = getTemplate(cmd);
-    await Vis.renderTemplate(template.template, template.isJson, `${path.join(tempDirectory, "cfn-diagram")}`, "image", cmd.outputPath);
-  });
-program
+
+  program
   .command("generate")
   .alias("g")
   .option(
     "-t, --template-file [templateFile]",
     "Path to template",
     "template.yaml"
-  )
+  )  
   .option("-o, --output-file [outputFile]", "Output file", "template.drawio")
   .description("[Deprected] Same as draw.io. Kept for backward compatability")
   .action(async (cmd) => {
+    console.log("Command is deprecated and will be removed. Please use `cfn-dia draw.io` instead.")
     await generate(cmd);
   });
 
@@ -98,6 +97,11 @@ async function generate(cmd) {
   let edgeMode = { answer: "On" };
   let actionChoice = {};
   console.log("Writing diagram to ./template.drawio");
+
+  if (ciMode) {
+    return;
+  }
+
   console.log("Press CTRL+C to exit");
   while (true) {
     filterConfig.resourceNamesToInclude = resourceNames.answer;
