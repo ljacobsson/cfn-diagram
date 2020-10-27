@@ -160,7 +160,7 @@ function getTemplate(cmd) {
     templateString = fs.readFileSync(cmd.templateFile);
   } catch {
     console.log(
-      `Can't find ${cmd.templateFile}. Specify location with -t flag, for example 'evb-local test-rule -t serverless.template'`
+      `Can't find ${cmd.templateFile}. Specify location with -t flag, for example 'cfn-dia html -t mytemplate.yaml'`
     );
     process.exit(1);
   }
