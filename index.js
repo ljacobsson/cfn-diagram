@@ -86,6 +86,8 @@ program
 program.parse(process.argv);
 async function generate(cmd) {
   const template = getTemplate(cmd).template;
+  jsonUtil.createPseudoResources(template);
+
   const resources = [...Object.keys(template.Resources)].sort();
   let types = [];
   for (const resource of resources) {

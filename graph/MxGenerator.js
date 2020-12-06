@@ -98,8 +98,8 @@ function addEdges(from, to, dependencyNode) {
       const existingEdge = graph.model.cells[existingEdges[0]];
       if (filterConfig.edgeMode === "Off") {
         existingEdge.value = "";
-      } else if (!existingEdge.value.includes(pathToDescriptor(dependencyNode.path))) {
-        existingEdge.value += `\n${pathToDescriptor(dependencyNode.path)}`;
+      } else if (!existingEdge.value.includes(jsonUtil.pathToDescriptor(dependencyNode.path, filterConfig))) {
+        existingEdge.value += `\n${jsonUtil.pathToDescriptor(dependencyNode.path, filterConfig)}`;
       }
       return;
     }
@@ -116,7 +116,7 @@ function addEdges(from, to, dependencyNode) {
       graph.insertEdge(
         parent,
         edgeId(to, from),
-        pathToDescriptor(dependencyNode.path),
+        jsonUtil.pathToDescriptor(dependencyNode.path, filterConfig),
         from,
         to,
         "edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=#EA6B66;"
@@ -148,6 +148,7 @@ function addVertices(resource, dependencies, type) {
 function getDependencies(template, resource) {
   const dependencies = [];
   jsonUtil.findAllValues(template.Resources[resource], dependencies, "Ref");
+  jsonUtil.findAllValues(template.Resources[resource], dependencies, "Fn::Sub");
   jsonUtil.findAllValues(
     template.Resources[resource],
     dependencies,
@@ -183,21 +184,6 @@ function updateFilters(type, resource) {
 
 function edgeId(to, from) {
   return `${to.value}|${from.value}`; //|${pathToDescriptor(dependencyNode.path)}`;
-}
-
-function pathToDescriptor(path) {  
-  if (filterConfig.edgeMode === "Off") {
-    return "";
-  }
-  if (path.startsWith("$.Properties.Environment")) {
-    return "Variable";
-  }
-
-  if (path.startsWith("$.Properties.Policies")) {
-    const split = path.split(".");
-    return split[3];
-  }
-  return path.split(".").slice(-1)[0];
 }
 
 function graphToXML(graph) {
