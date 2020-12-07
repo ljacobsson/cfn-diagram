@@ -1,8 +1,9 @@
 function createPseudoResources(template, current) {
-  current = current || template;
+  current = current || template.Resources;
   for (var k in current) {
     if (current[k]["Fn::Join"]) {
-      current[k] = current[k]["Fn::Join"][1].join(current[k]["Fn::Join"][0]);
+      const joinList = current[k]["Fn::Join"][1]    
+      current[k] = (Array.isArray(joinList) ? joinList : [joinList]).join(current[k]["Fn::Join"][0]);
     }
     if (typeof current[k] === "object" && current[k] !== null) {
       createPseudoResources(template, current[k]);
