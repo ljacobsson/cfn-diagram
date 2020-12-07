@@ -1,14 +1,20 @@
 function createPseudoResources(template, current) {
   current = current || template;
   for (var k in current) {
+    if (current[k]["Fn::Join"]) {
+      current[k] = current[k]["Fn::Join"][1].join(current[k]["Fn::Join"][0]);
+    }
     if (typeof current[k] === "object" && current[k] !== null) {
       createPseudoResources(template, current[k]);
     } else if (typeof current[k] === "string" && current[k].startsWith("arn:")) {
-      current[k] = current[k].replace(/\$\{AWS\:\:(.+?)\}/g, "same $1").toLowerCase();
+      current[k] = current[k].replace(/\$\{AWS\:\:(.+?)\}/g, "").toLowerCase();
+      if (!current[k]) {
+        return;
+      }
       const split = current[k].split(":");
       const service = split[2];
-      const resourceType = split[5].split("/")[0].replace(/[\W_]+/g,"");
-      const name = `${split[3]} @ ${split[4]}\n${split.slice(-1)[0]}`
+      const resourceType = split[5] ? split[5].split("/")[0].replace(/[\W_]+/g,""): "";
+      const name = `${split[2]} ${split[3]} ${split[4]}\n${split.slice(-1)[0]}`
       template.Resources[name] = {
         Type: `AWS::${service}::${resourceType}`,
       };
