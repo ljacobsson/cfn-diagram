@@ -16,6 +16,7 @@ program
   .option("-o --output [output]", "Output format. draw.io or html")
   .option("--output-file [outputFile]", "Output file. Only used when using draw.io output. Defaults to <stack-name>.drawio")
   .option("-p --profile [profile]", "AWS CLI profile")
+  .option("-r --region [region]", "AWS region")
   .description("Browses and generates diagrams from your deployed templates")
   .action(async (cmd) => {
     initAuth(cmd);
