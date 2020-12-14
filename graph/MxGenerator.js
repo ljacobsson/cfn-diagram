@@ -5,6 +5,18 @@ const dom = new JSDOM();
 const jsonUtil = require("../resources/JsonUtil");
 const iconMap = require("../resources/IconMap");
 const filterConfig = require("../resources/FilterConfig");
+const fs = require("fs");
+const inquirer = require("inquirer");
+const prompt = inquirer.createPromptModule();
+const templateHelper = require("../shared/template");
+const actionOption = {
+  FilterResourceTypes: "Filter resources by type",
+  FilterResourceName: "Filter resources by name",
+  EdgeLabels: "Edge labels: On",
+};
+const YAML = require("yaml-cfn");
+
+
 global.window = dom.window;
 global.document = window.document;
 global.XMLSerializer = window.XMLSerializer;
@@ -33,7 +45,7 @@ function reset() {
   parent = graph.getDefaultParent();
   vertices = [];
   locationCache = {};
-  }
+}
 
 function makeGraph(template) {
   const layout = new mxgraph[currentLayout](graph, true, 500);
@@ -50,18 +62,16 @@ function makeGraph(template) {
     for (const resource of resources) {
       const type = template.Resources[resource].Type;
       if (
-        !filterConfig.resourceTypesToInclude.includes(type) ||
-        !filterConfig.resourceNamesToInclude.includes(resource)
+        ((filterConfig.resourceTypesToInclude &&
+          filterConfig.resourceNamesToInclude) &&
+          (!filterConfig.resourceTypesToInclude.includes(type)) ||
+        !filterConfig.resourceNamesToInclude.includes(resource))
       ) {
         updateFilters(type, resource);
         continue;
       }
 
-      const dependencies = getDependencies(
-        template,
-        resource
-      );
-
+      const dependencies = getDependencies(template, resource);
       addVertices(resource, dependencies, type);
     }
 
@@ -94,12 +104,20 @@ function addEdges(from, to, dependencyNode) {
     const existingEdges = Object.keys(graph.getModel().cells).filter(
       (c) => c === edgeId(to, from)
     );
+
     if (existingEdges.length > 0) {
       const existingEdge = graph.model.cells[existingEdges[0]];
       if (filterConfig.edgeMode === "Off") {
         existingEdge.value = "";
-      } else if (!existingEdge.value.includes(jsonUtil.pathToDescriptor(dependencyNode.path, filterConfig))) {
-        existingEdge.value += `\n${jsonUtil.pathToDescriptor(dependencyNode.path, filterConfig)}`;
+      } else if (
+        !existingEdge.value.includes(
+          jsonUtil.pathToDescriptor(dependencyNode.path, filterConfig)
+        )
+      ) {
+        existingEdge.value += `\n${jsonUtil.pathToDescriptor(
+          dependencyNode.path,
+          filterConfig
+        )}`;
       }
       return;
     }
@@ -197,12 +215,90 @@ function graphToXML(graph) {
 }
 
 function renderTemplate(template) {
-  const xml = graphToXML(makeGraph(template)) 
+  const xml = graphToXML(makeGraph(template));
   return xml;
 }
+
+async function generate(cmd, template) {
+  const ciMode = cmd.ciMode;
+
+  template = template || templateHelper.get(cmd).template;
+  jsonUtil.createPseudoResources(template);
+
+  const resources = [...Object.keys(template.Resources)].sort();
+  let types = [];
+  for (const resource of resources) {
+    types.push(template.Resources[resource].Type);
+  }
+  types = [...new Set(types)].sort();
+  let resourceTypes = { answer: types };
+  let resourceNames = { answer: resources };
+  let edgeMode = { answer: "On" };
+  let actionChoice = {};
+  console.log("Writing diagram to ./template.drawio");
+
+  if (ciMode) {
+    return;
+  }
+
+  console.log("Press CTRL+C to exit");
+  while (true) {
+    filterConfig.resourceNamesToInclude = resourceNames.answer;
+    filterConfig.resourceTypesToInclude = resourceTypes.answer;
+    
+    filterConfig.edgeMode = edgeMode.answer;
+
+    const xml = renderTemplate(template);
+    fs.writeFileSync(cmd.outputFile, xml);
+
+    actionChoice = await prompt({
+      message: "Options",
+      choices: [
+        actionOption.FilterResourceTypes,
+        actionOption.FilterResourceName,
+        actionOption.EdgeLabels,
+      ],
+      type: "list",
+      name: "answer",
+    });
+
+    switch (actionChoice.answer) {
+      case actionOption.FilterResourceTypes:
+        resourceTypes = await prompt({
+          message: "Select resource types to include",
+          choices: types,
+          default: resourceTypes.answer,
+          type: "checkbox",
+          name: "answer",
+        });
+        break;
+      case actionOption.FilterResourceName:
+        resourceNames = await prompt({
+          message: "Select resources to include",
+          choices: resources,
+          default: resourceNames.answer,
+          type: "checkbox",
+          name: "answer",
+        });
+        break;
+      case actionOption.EdgeLabels:
+        edgeMode = await prompt({
+          message: "Toggle edge labels",
+          choices: ["On", "Off"],
+          default: resourceNames.answer,
+          type: "list",
+          name: "answer",
+        });
+        actionOption.EdgeLabels = `Edge labels: ${edgeMode.answer}`;
+        break;
+    }
+  }
+}
+
 
 module.exports = {
   renderTemplate,
   layouts,
-  reset
+  reset,
+  generate
 };

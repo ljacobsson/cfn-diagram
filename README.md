@@ -15,9 +15,11 @@ Options:
   -h, --help            display help for command
 
 Commands:
-  draw.io|d [options]   Generates a draw.io diagram from a CloudFormation template
-  html|h [options]      Generates a vis.js diagram from a CloudFormation template
-  help [command]        display help for command
+Commands:
+  draw.io|d [options]  Generates a draw.io diagram from a CloudFormation template
+  html|h [options]     Generates a vis.js diagram from a CloudFormation template
+  browse|b [options]   Browses and generates diagrams from your deployed templates
+  help [command]       display help for command
   ```
 
 ## Output formats

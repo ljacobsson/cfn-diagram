@@ -24,6 +24,7 @@ function reset() {
 }
 
 function makeGraph(template, prefix) {
+  reset();
   jsonUtil.createPseudoResources(template);
 
   const resources = Object.keys(template.Resources);

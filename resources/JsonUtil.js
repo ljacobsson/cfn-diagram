@@ -17,7 +17,7 @@ function createPseudoResources(template, current) {
       const resourceType = split[5] ? split[5].split("/")[0].replace(/[\W_]+/g,""): "";
       const name = `${split[2]} ${split[3]} ${split[4]}\n${split.slice(-1)[0]}`
       template.Resources[name] = {
-        Type: `AWS::${service}::${resourceType}`,
+        Type: `External resource (aws::${service}::${resourceType})`,
       };
       current[k] = {
         Ref: name,
