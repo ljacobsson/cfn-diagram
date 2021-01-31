@@ -1,21 +1,53 @@
+const templateCache = require("../shared/templateCache");
+
 function createPseudoResources(template, current) {
   current = current || template.Resources;
   for (var k in current) {
     if (current[k] && current[k]["Fn::Join"]) {
-      const joinList = current[k]["Fn::Join"][1]    
-      current[k] = (Array.isArray(joinList) ? joinList : [joinList]).join(current[k]["Fn::Join"][0]);
+      const joinList = current[k]["Fn::Join"][1];
+      if (
+        joinList.filter(
+          (p) => typeof p === "object" && (!p.Ref || !p.Ref.startsWith("AWS::"))
+        )
+      ) {
+        return;
+      }
+      current[k] = (Array.isArray(joinList)
+        ? joinList
+            .map((p) => {
+              if (p[Object.keys(p)[0]] === "object") {
+                return "";
+              }
+              if (Array.isArray(p[Object.keys(p)[0]])) {
+                return "[]";
+              }
+              if (typeof p === "object" && p.Ref && p.Ref.startsWith("AWS::")) {
+                return null;
+              }
+              return typeof p === "object"
+                ? p[Object.keys(p)[0]].replace(/::/g, "-")
+                : p;
+            })
+            .filter((p) => p)
+        : [joinList]
+      ).join(current[k]["Fn::Join"][0]);
     }
     if (typeof current[k] === "object" && current[k] !== null) {
       createPseudoResources(template, current[k]);
-    } else if (typeof current[k] === "string" && current[k].startsWith("arn:")) {
+    } else if (
+      typeof current[k] === "string" &&
+      current[k].startsWith("arn:")
+    ) {
       current[k] = current[k].replace(/\$\{AWS\:\:(.+?)\}/g, "").toLowerCase();
       if (!current[k]) {
         return;
       }
       const split = current[k].split(":");
       const service = split[2];
-      const resourceType = split[5] ? split[5].split("/")[0].replace(/[\W_]+/g,""): "";
-      const name = `${split[2]} ${split[3]} ${split[4]}\n${split.slice(-1)[0]}`
+      const resourceType = split[5]
+        ? split[5].split("/")[0].replace(/[\W_]+/g, "")
+        : "";
+      const name = `${split[2]} ${split[3]} ${split[4]}\n${split.slice(-1)[0]}`;
       template.Resources[name] = {
         Type: `External resource (aws::${service}::${resourceType})`,
       };
@@ -49,13 +81,25 @@ function findAllValues(obj, keyArray, keyName, path) {
         values = multiValue.map((p) => p[0]);
       }
 
+      if (prop === "Fn::ImportValue") {
+        const split = typeof values[0] ==="string" && values[0].split(":");
+        if (split.length == 2) {
+          const stackName = split[0];
+          const exportName = split[1];
+          const value = templateCache.templates[stackName].Outputs[exportName].Value;
+          const intrinsicFunction = Object.keys(value)[0];
+          const prefix = stackName === templateCache.rootTemplate ? "root" : stackName;
+          values[0] = `${prefix}.${value[intrinsicFunction]}`;
+        }
+      }
+
       values = [values];
 
       for (const v of values) {
         const item = {
           key: prop,
-          value: v.filter((p) => !p.startsWith("AWS::")),
-          path: path,
+          value: v.filter((p) => typeof p === "string" && !p.startsWith("AWS::")),
+          path: path.split(".Fn::")[0],
         };
         if (item.value.length) {
           keyArray.push(item);

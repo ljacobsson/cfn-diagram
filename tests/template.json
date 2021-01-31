@@ -89,6 +89,29 @@
             },
             "SubbedThing": {
               "Fn::Sub": "${DynamoTable.Arn}-${Function1.Arn}-${AWS::StackName}"
+            },
+            "JoinedWithRef": {
+              "Fn::Join": [
+                "",
+                [
+                  "arn:",
+                  {
+                    "Ref": "AWS::Partition"
+                  },
+                  ":apigateway:",
+                  {
+                    "Ref": "AWS::Region"
+                  },
+                  ":lambda:path/2015-03-31/functions/",
+                  {
+                    "Fn::GetAtt": [
+                      "Function1",
+                      "Arn"
+                    ]
+                  },
+                  "/invocations"
+                ]
+              ]
             }
           }
         }

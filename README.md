@@ -1,7 +1,7 @@
 # cfn-diagram
 ![Node.js CI](https://github.com/mhlabs/cfn-diagram/workflows/Node.js%20CI/badge.svg)
 
-CLI tool to visualise CloudFormation templates as diagrams. 
+CLI tool to visualise CloudFormation/SAM/CDK templates as diagrams. 
 
 ## Installation
 `npm i -g @mhlabs/cfn-diagram`
@@ -39,6 +39,7 @@ cfn-dia draw.io -t template.yaml
 * Navigate through a new differnet layouts
 * Works for both JSON and YAML templates
 * Filter on resource type and/or resource names
+* Works with CloudFormation, SAM and CDK
 
 ### HTML
 The HTML output uses [vis.js](https://github.com/visjs/vis-network) to generate an interactive diagram from your template.
@@ -48,6 +49,10 @@ The HTML output uses [vis.js](https://github.com/visjs/vis-network) to generate 
 #### Example 
 ```
 cfn-dia html -t template.yaml
+```
+or, for CDK stacks, go to project directory (where cdk.json is located) and enter
+```
+cfn-dia html 
 ```
 
 ### CI-mode

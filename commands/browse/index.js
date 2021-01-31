@@ -1,5 +1,5 @@
 const program = require("commander");
-const template = require("../../shared/template");
+const template = require("../../shared/templateParser");
 const Vis = require("../../graph/Vis");
 const draw = require("../../graph/MxGenerator");
 const AWS = require("aws-sdk");
@@ -52,7 +52,8 @@ program
           template,
           template.isJson,
           cmd.outputPath,
-          false
+          false,
+          true
         );
       } else {
         cmd.outputFile = cmd.outputFile || stack.stackName + ".drawio"
