@@ -7,15 +7,16 @@ const iconMap = require("../resources/IconMap");
 const filterConfig = require("../resources/FilterConfig");
 const fs = require("fs");
 const inquirer = require("inquirer");
+const templateCache = require("../shared/templateCache");
+
 const prompt = inquirer.createPromptModule();
-const templateHelper = require("../shared/template");
+const templateHelper = require("../shared/templateParser");
 const actionOption = {
   FilterResourceTypes: "Filter resources by type",
   FilterResourceName: "Filter resources by name",
   EdgeLabels: "Edge labels: On",
 };
 const YAML = require("yaml-cfn");
-
 
 global.window = dom.window;
 global.document = window.document;
@@ -47,7 +48,7 @@ function reset() {
   locationCache = {};
 }
 
-function makeGraph(template) {
+function makeGraph(template, prefix = "root") {
   const layout = new mxgraph[currentLayout](graph, true, 500);
   const resources = Object.keys(template.Resources);
   layout.orientation = "west";
@@ -60,32 +61,38 @@ function makeGraph(template) {
   graph.getModel().beginUpdate();
   try {
     for (const resource of resources) {
-      const type = template.Resources[resource].Type;
+      const resObj = template.Resources[resource];
+      const type = resObj.Type;
       if (
-        ((filterConfig.resourceTypesToInclude &&
-          filterConfig.resourceNamesToInclude) &&
-          (!filterConfig.resourceTypesToInclude.includes(type)) ||
-        !filterConfig.resourceNamesToInclude.includes(resource))
+        (filterConfig.resourceTypesToInclude &&
+          filterConfig.resourceNamesToInclude &&
+          !filterConfig.resourceTypesToInclude.includes(type)) ||
+        !filterConfig.resourceNamesToInclude.includes(resource)
       ) {
-        updateFilters(type, resource);
+        updateFilters(type, resource, prefix);
         continue;
+      }
+      if (resObj.Template) {
+        makeGraph(resObj.Template, resource);
       }
 
       const dependencies = getDependencies(template, resource);
-      addVertices(resource, dependencies, type);
+      addVertices(resource, dependencies, type, prefix);
     }
 
     for (const sourceVertex of vertices) {
       for (const dependencyNode of sourceVertex.dependencies) {
         for (const dependency of dependencyNode.value) {
-          const targets = vertices.filter((p) => p.name === dependency);
+          const targets = vertices.filter(
+            (p) => p.name === prefix + "." + dependency.split(".").pop()
+          );
           const targetVertex = targets[0];
           if (!targetVertex) {
             continue;
           }
           let from = sourceVertex.vertex;
           let to = targetVertex.vertex;
-          addEdges(from, to, dependencyNode);
+          addEdges(from, to, dependencyNode, prefix);
         }
       }
     }
@@ -143,10 +150,10 @@ function addEdges(from, to, dependencyNode) {
   }
 }
 
-function addVertices(resource, dependencies, type) {
-  if (vertices.filter((p) => p.name === resource).length === 0) {
+function addVertices(resource, dependencies, type, prefix) {
+  if (vertices.filter((p) => p.name === prefix + "." + resource).length === 0) {
     vertices.push({
-      name: resource,
+      name: `${prefix}.${resource}`,
       dependencies: dependencies,
       type: type,
       vertex: graph.insertVertex(
@@ -172,17 +179,27 @@ function getDependencies(template, resource) {
     dependencies,
     "Fn::GetAtt"
   );
+
+  jsonUtil.findAllValues(
+    template.Resources[resource],
+    dependencies,
+    "Fn::ImportValue"
+  );
+
   for (const dependency of dependencies) {
-    dependency.value = dependency.value.filter(
-      (p) =>
-        template.Resources[p] &&
-        filterConfig.resourceTypesToInclude.includes(template.Resources[p].Type)
-    );
+    dependency.value = dependency.value.filter((p) => {
+      const split = p.split(".");
+      if (split.length === 2) {
+        return templateCache.templates[split[0]].Resources[split[1]];
+      }
+      return template.Resources[p];
+    });
   }
+
   return dependencies;
 }
 
-function updateFilters(type, resource) {
+function updateFilters(type, resource, prefix) {
   const cells = graph.getModel().cells;
   const keys = Object.keys(cells);
   keys.map(
@@ -192,11 +209,11 @@ function updateFilters(type, resource) {
         : null)
   );
   if (vertices.filter((p) => p.type === type).length) {
-    const item = vertices.filter((p) => p.name === resource)[0];
+    const item = vertices.filter((p) => p.name === `${prefix}.${resource}`)[0];
     if (item) {
       graph.removeCells([item.vertex], true);
     }
-    vertices = vertices.filter((p) => p.name != resource);
+    vertices = vertices.filter((p) => p.name != `${prefix}.${resource}`);
   }
 }
 
@@ -225,11 +242,9 @@ async function generate(cmd, template) {
   template = template || templateHelper.get(cmd).template;
   jsonUtil.createPseudoResources(template);
 
-  const resources = [...Object.keys(template.Resources)].sort();
+  const resources = iterateResources(template);
   let types = [];
-  for (const resource of resources) {
-    types.push(template.Resources[resource].Type);
-  }
+  addTypesToShow(Object.keys(template.Resources), types, template);
   types = [...new Set(types)].sort();
   let resourceTypes = { answer: types };
   let resourceNames = { answer: resources };
@@ -245,7 +260,7 @@ async function generate(cmd, template) {
   while (true) {
     filterConfig.resourceNamesToInclude = resourceNames.answer;
     filterConfig.resourceTypesToInclude = resourceTypes.answer;
-    
+
     filterConfig.edgeMode = edgeMode.answer;
 
     const xml = renderTemplate(template);
@@ -295,10 +310,35 @@ async function generate(cmd, template) {
   }
 }
 
+function iterateResources(template) {
+  const resources = [];
+  for (const resource of Object.keys(template.Resources)) {
+    resources.push(resource);
+    if (template.Resources[resource].Template) {
+      resources.push(
+        ...iterateResources(template.Resources[resource].Template, resource)
+      );
+    }
+  }
+  return resources;
+}
+
+function addTypesToShow(resources, types, template) {
+  for (const resource of resources) {
+    types.push(template.Resources[resource].Type);
+    if (template.Resources[resource].Template) {
+      addTypesToShow(
+        Object.keys(template.Resources[resource].Template.Resources),
+        types,
+        template.Resources[resource].Template
+      );
+    }
+  }
+}
 
 module.exports = {
   renderTemplate,
   layouts,
   reset,
-  generate
+  generate,
 };

@@ -15,7 +15,8 @@ test("Find Ref", async () => {
 test("Find Fn::GetAtt", async () => {
   const values = [];
   jsonUtil.findAllValues(template.Resources.Function2.Properties, values, "Fn::GetAtt");
-  expect(values.length).toBe(1);
+  console.log(values);
+  expect(values.length).toBe(2);
 });
 
 test("Find Fn::Sub", async () => {
@@ -23,3 +24,9 @@ test("Find Fn::Sub", async () => {
   jsonUtil.findAllValues(template.Resources.Function2.Properties, values, "Fn::Sub");
   expect(values.length).toBe(1);
 });
+
+// test("Find Ref in nested Join", async () => {
+//   const values = [];
+//   jsonUtil.findAllValues(template.Resources.Function2.Properties, values, "Fn::Sub");
+//   expect(values.length).toBe(1);
+// });

@@ -8,8 +8,8 @@ program
   .alias("d")
   .option(
     "-t, --template-file [templateFile]",
-    "Path to template",
-    "template.yaml"
+    "Path to template or cdk.json file",
+    "template.yaml or cdk.json"
   )
   .option(
     "-c, --ci-mode",
@@ -17,6 +17,11 @@ program
     false
   )
   .option("-o, --output-file [outputFile]", "Output file", "template.drawio")
+  .option(
+    "-co, --cdk-output [outputPath]",
+    "CDK synth output path",
+    `cdk.out`
+  )
   .description("Generates a draw.io diagram from a CloudFormation template")
   .action(async (cmd) => {
     await mxGenerator.generate(cmd);

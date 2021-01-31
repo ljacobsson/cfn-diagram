@@ -50,6 +50,50 @@ const icons = {
   "AWS::EC2::EIP": {
     icon: "mxgraph.aws4.elastic_ip_address",
     serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGateway::RestApi": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGateway::Method": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGateway::Deployment": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGateway::Resource": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGateway::Stage": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGateway::Account": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGateway::Account": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::WAF::WebACL": {
+    icon: "mxgraph.aws4.waf",
+    serviceType: "securityidentitycomplicance",
+  },
+  "AWS::WAF::WebACLAssociation": {
+    icon: "mxgraph.aws4.waf",
+    serviceType: "securityidentitycomplicance",
+  },
+  "AWS::WAFv2::WebACL": {
+    icon: "mxgraph.aws4.waf",
+    serviceType: "securityidentitycomplicance",
+  },
+  "AWS::WAFv2::WebACLAssociation": {
+    icon: "mxgraph.aws4.waf",
+    serviceType: "securityidentitycomplicance",
   }
   
 };

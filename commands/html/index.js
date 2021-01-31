@@ -1,5 +1,5 @@
 const program = require("commander");
-const template = require("../../shared/template");
+const template = require("../../shared/templateParser");
 const path = require("path");
 const tempDirectory = require("temp-dir");
 const Vis = require("../../graph/Vis");
@@ -10,8 +10,8 @@ program
   .alias("h")
   .option(
     "-t, --template-file [templateFile]",
-    "Path to template",
-    "template.yaml"
+    "Path to template or cdk.json file",
+    "template.yaml or cdk.json"
   )
   .option(
     "-c, --ci-mode",
@@ -22,6 +22,11 @@ program
     "-o, --output-path [outputPath]",
     "Output file",
     `${path.join(tempDirectory, "cfn-diagram")}`
+  )
+  .option(
+    "-co, --cdk-output [outputPath]",
+    "CDK synth output path",
+    `cdk.out`
   )
   .description("Generates a vis.js diagram from a CloudFormation template")
   .action(async (cmd) => {
