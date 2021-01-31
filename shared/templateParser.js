@@ -8,13 +8,16 @@ const templateCache = require("./templateCache");
 function get(cmd) {
   let templateString = "";
   try {
+    if (cmd.templateFile === "template.yaml or cdk.json") {
+      cmd.templateFile = "template.yaml";
+    }
     templateString = fs.readFileSync(cmd.templateFile);
   } catch {
     try {
       templateString = fs.readFileSync("cdk.json").toString();
     } catch {
       console.log(
-        `Can't find ${cmd.templateFile}. Specify location with -t flag, for example 'cfn-dia html -t mytemplate.yaml'`
+        `Can't find ${cmd.templateFile} or cdk.json. Specify location with -t flag, for example 'cfn-dia html -t mytemplate.yaml'`
       );
       process.exit(1);
     }
