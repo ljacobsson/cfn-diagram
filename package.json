@@ -29,7 +29,8 @@
   },
   "devDependencies": {
     "@aws-cdk/core": "^1.87.1",
-    "jest": "^26.0.1"
+    "jest": "^26.0.1",
+    "node-notifier": ">=8.0.1"
   },
   "bin": {
     "cfn-diagram": "index.js",
