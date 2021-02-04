@@ -52,7 +52,9 @@ function get(cmd) {
 }
 
 function fromCDK(cmd) {
-  cp.execSync("cdk synth -o " + cmd.cdkOutput);
+  if (!cmd.skipSynth) {
+    cp.execSync("cdk synth -o " + cmd.cdkOutput);
+  }
   const treeFile = fs.readFileSync(path.join(cmd.cdkOutput, "tree.json"));
   const tree = JSON.parse(treeFile);
   const stacks = Object.keys(tree.tree.children).filter((p) => p !== "Tree");
