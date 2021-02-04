@@ -189,7 +189,7 @@ function getDependencies(template, resource) {
   for (const dependency of dependencies) {
     dependency.value = dependency.value.filter((p) => {
       const split = p.split(".");
-      if (split.length === 2) {
+      if (split.length === 2 && templateCache.templates[split[0]]) {
         return templateCache.templates[split[0]].Resources[split[1]];
       }
       return template.Resources[p];
