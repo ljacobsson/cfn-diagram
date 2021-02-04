@@ -22,6 +22,11 @@ program
     "CDK synth output path",
     `cdk.out`
   )
+  .option(
+    "-s, --skip-synth",
+    "Skips CDK synth",
+    false
+  )
   .description("Generates a draw.io diagram from a CloudFormation template")
   .action(async (cmd) => {
     await mxGenerator.generate(cmd);
