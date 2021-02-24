@@ -250,9 +250,11 @@ async function generate(cmd, template) {
   let resourceNames = { answer: resources };
   let edgeMode = { answer: "On" };
   let actionChoice = {};
-  console.log("Writing diagram to ./template.drawio");
+  console.log("Diagram will be written to " + cmd.outputFile);
 
   if (ciMode) {
+    const xml = renderTemplate(template);
+    fs.writeFileSync(cmd.outputFile, xml);
     return;
   }
 
