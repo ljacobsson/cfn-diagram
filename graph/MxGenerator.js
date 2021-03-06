@@ -248,9 +248,14 @@ async function generate(cmd, template) {
   types = [...new Set(types)].sort();
   let resourceTypes = { answer: types };
   let resourceNames = { answer: resources };
-  let edgeMode = { answer: "On" };
+  let edgeMode = { answer: "On" }; 
+  filterConfig.resourceNamesToInclude = resourceNames.answer;
+  filterConfig.resourceTypesToInclude = resourceTypes.answer;
+  filterConfig.edgeMode = edgeMode.answer;
+
   let actionChoice = {};
   console.log("Diagram will be written to " + cmd.outputFile);
+
 
   if (ciMode) {
     const xml = renderTemplate(template);
