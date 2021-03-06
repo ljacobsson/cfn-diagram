@@ -50,14 +50,23 @@
             '{"source": <source>, "detail-type": <detailType>, "time": <time> }',
         },
       };
+      function preTitle(text) {
+        const container = document.createElement("pre");
+        container.innerText = text; // You may also use innerHTML if your source is trusted.
+        return container;
+      }
 
       function draw() {
         // create a network
         var container = document.getElementById("mynetwork");
+        nodes.forEach((node => {
+          node.title = preTitle(node.title);
+        }));
         var data = {
           nodes: nodes,
           edges: edges,
         };
+        
         var options = {
           nodes: {
             shape: "dot",

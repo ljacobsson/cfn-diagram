@@ -118,15 +118,16 @@ function addnodes(resource, dependencies, type, resourceObject, prefix) {
       label: resource,
       shape: "image",
       image: createImage(type),
-      title: `<pre> ${
+      title: `${
         useJson
           ? JSON.stringify(resourceObject, null, 2)
           : yamlDump(resourceObject).replace(/>/g, "").replace(/</g, "")
-      }</pre>`,
+      }`,
       resource: resourceObject,
     });
   }
 }
+
 function createImage(resourceType) {
   var svg =
     icons.iconMap.get(resourceType.toLowerCase()) ||
