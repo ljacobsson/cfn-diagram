@@ -11,16 +11,30 @@ CLI tool to visualise CloudFormation/SAM/CDK templates as diagrams.
 Usage: cfn-dia [options] [command]
 
 Options:
-  -v, --vers            output the current version
-  -h, --help            display help for command
+  -v, --vers                          Output the current version
+  -h, --help                          Display help for command
 
 Commands:
-Commands:
-  draw.io|d [options]  Generates a draw.io diagram from a CloudFormation template
-  html|h [options]     Generates a vis.js diagram from a CloudFormation template
-  browse|b [options]   Browses and generates diagrams from your deployed templates
-  help [command]       display help for command
-  ```
+  draw.io|d [options]                 Generates a draw.io diagram from a CloudFormation template
+  html|h [options]                    Generates a vis.js diagram from a CloudFormation template
+  browse|b [options]                  Browses and generates diagrams from your deployed templates
+  help [command]                      Display help for command
+
+Draw.io Options:
+  -t, --template-file [templateFile]  Path to template or cdk.json file
+  -c, --ci-mode                       Disable terminal/console interactivity
+  -o, --output-file [outputFile]      Name of output file
+  -co, --cdk-output [outputPath]      CDK synth output path
+  -s, --skip-synth                    Skips CDK synth
+  -e, --exclude-types [excludeTypes]  List of resource types to exclude when using CI mode
+
+Html Options:
+  -t, --template-file [templateFile]  Path to template or cdk.json file
+  -c, --ci-mode                       Disable terminal/console interactivity
+  -o, --output-path [outputPath]      Name of output file
+  -co, --cdk-output [outputPath]      CDK synth output path
+  -s, --skip-synth                    Skips CDK synth
+```
 
 ## Output formats
 
