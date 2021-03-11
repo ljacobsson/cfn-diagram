@@ -13,10 +13,10 @@ program
     "Path to template or cdk.json file",
     "template.yaml or cdk.json"
   )
-  .option("-c, --ci-mode", "Disable interactivity", false)
+  .option("-c, --ci-mode", "Disable terminal/console interactivity", false)
   .option(
     "-o, --output-path [outputPath]",
-    "Output file",
+    "Name of output file",
     `${path.join(tempDirectory, "cfn-diagram")}`
   )
   .option("-co, --cdk-output [outputPath]", "CDK synth output path", `cdk.out`)

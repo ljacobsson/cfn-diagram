@@ -18,7 +18,7 @@
     "@mhlabs/aws-sdk-sso": "0.0.12",
     "aws-sdk": "^2.808.0",
     "color-hash": "^1.0.3",
-    "commander": "^5.1.0",
+    "commander": "^7.1.0",
     "inquirer": "^7.1.0",
     "jdom": "^3.1.11",
     "jsdom": "^16.4.0",

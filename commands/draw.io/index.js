@@ -13,10 +13,10 @@ program
   )
   .option(
     "-c, --ci-mode",
-    "Disable interactivity",
+    "Disable terminal/console interactivity",
     false
   )
-  .option("-o, --output-file [outputFile]", "Output file", "template.drawio")
+  .option("-o, --output-file [outputFile]", "Name of output file", "template.drawio")
   .option(
     "-co, --cdk-output [outputPath]",
     "CDK synth output path",
@@ -26,6 +26,10 @@ program
     "-s, --skip-synth",
     "Skips CDK synth",
     false
+  )
+  .option(
+    "-e, --exclude-types [excludeTypes...]",
+    "List of resource types to exclude when using CI mode"
   )
   .description("Generates a draw.io diagram from a CloudFormation template")
   .action(async (cmd) => {

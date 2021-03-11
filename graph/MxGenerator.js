@@ -263,6 +263,10 @@ async function generate(cmd, template) {
   }
 
   if (ciMode) {
+    if(cmd.excludeTypes && Array.isArray(cmd.excludeTypes)){
+      const filteredTypes = filterConfig.resourceTypesToInclude.filter(type => shouldFilterFromCiTypeList(type, cmd.excludeTypes));
+      filterConfig.resourceTypesToInclude = filteredTypes;
+    }
     const xml = renderTemplate(template);
     fs.writeFileSync(cmd.outputFile, xml);
     return;
@@ -360,6 +364,14 @@ function addTypesToShow(resources, types, template) {
       );
     }
   }
+}
+
+function shouldFilterFromCiTypeList(type, excludeList) {
+  type = type.toLowerCase();
+  const isInExcludeList = excludeList.find(exclude => exclude.toLowerCase() == type 
+    || (type.startsWith('external resource') && type.includes(exclude)));
+
+  return !isInExcludeList;
 }
 
 module.exports = {
