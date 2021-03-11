@@ -8,7 +8,7 @@ const filterConfig = require("../resources/FilterConfig");
 const fs = require("fs");
 const inquirer = require("inquirer");
 const templateCache = require("../shared/templateCache");
-
+const openInEditor = require("open-in-editor");
 const prompt = inquirer.createPromptModule();
 const templateHelper = require("../shared/templateParser");
 const actionOption = {
@@ -263,8 +263,10 @@ async function generate(cmd, template) {
   }
 
   if (ciMode) {
-    if(cmd.excludeTypes && Array.isArray(cmd.excludeTypes)){
-      const filteredTypes = filterConfig.resourceTypesToInclude.filter(type => shouldFilterFromCiTypeList(type, cmd.excludeTypes));
+    if (cmd.excludeTypes && Array.isArray(cmd.excludeTypes)) {
+      const filteredTypes = filterConfig.resourceTypesToInclude.filter((type) =>
+        shouldFilterFromCiTypeList(type, cmd.excludeTypes)
+      );
       filterConfig.resourceTypesToInclude = filteredTypes;
     }
     const xml = renderTemplate(template);
@@ -272,6 +274,16 @@ async function generate(cmd, template) {
     return;
   }
 
+  try {
+    const editor = await openInEditor.configure({
+      editor: "code",
+    });
+
+    await editor.open(cmd.outputFile);
+  } catch (err){
+    console.log("Could not find vscode");    
+  }
+  
   while (true) {
     filterConfig.resourceNamesToInclude = resourceNames.answer;
     filterConfig.resourceTypesToInclude = resourceTypes.answer;
@@ -368,8 +380,11 @@ function addTypesToShow(resources, types, template) {
 
 function shouldFilterFromCiTypeList(type, excludeList) {
   type = type.toLowerCase();
-  const isInExcludeList = excludeList.find(exclude => exclude.toLowerCase() == type 
-    || (type.startsWith('external resource') && type.includes(exclude)));
+  const isInExcludeList = excludeList.find(
+    (exclude) =>
+      exclude.toLowerCase() == type ||
+      (type.startsWith("external resource") && type.includes(exclude))
+  );
 
   return !isInExcludeList;
 }
