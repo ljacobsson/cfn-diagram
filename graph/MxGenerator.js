@@ -15,6 +15,7 @@ const actionOption = {
   FilterResourceTypes: "Filter resources by type",
   FilterResourceName: "Filter resources by name",
   EdgeLabels: "Edge labels: On",
+  Quit: "Quit",
 };
 const YAML = require("yaml-cfn");
 
@@ -248,14 +249,18 @@ async function generate(cmd, template) {
   types = [...new Set(types)].sort();
   let resourceTypes = { answer: types };
   let resourceNames = { answer: resources };
-  let edgeMode = { answer: "On" }; 
+  let edgeMode = { answer: "On" };
   filterConfig.resourceNamesToInclude = resourceNames.answer;
   filterConfig.resourceTypesToInclude = resourceTypes.answer;
   filterConfig.edgeMode = edgeMode.answer;
 
   let actionChoice = {};
   console.log("Diagram will be written to " + cmd.outputFile);
-
+  let backedUp = false;
+  if (fs.existsSync(cmd.outputFile)) {
+    fs.copyFileSync(cmd.outputFile, `${cmd.outputFile}.bak`);
+    backedUp = true;
+  }
 
   if (ciMode) {
     const xml = renderTemplate(template);
@@ -263,7 +268,6 @@ async function generate(cmd, template) {
     return;
   }
 
-  console.log("Press CTRL+C to exit");
   while (true) {
     filterConfig.resourceNamesToInclude = resourceNames.answer;
     filterConfig.resourceTypesToInclude = resourceTypes.answer;
@@ -271,6 +275,7 @@ async function generate(cmd, template) {
     filterConfig.edgeMode = edgeMode.answer;
 
     const xml = renderTemplate(template);
+
     fs.writeFileSync(cmd.outputFile, xml);
 
     actionChoice = await prompt({
@@ -279,6 +284,7 @@ async function generate(cmd, template) {
         actionOption.FilterResourceTypes,
         actionOption.FilterResourceName,
         actionOption.EdgeLabels,
+        actionOption.Quit,
       ],
       type: "list",
       name: "answer",
@@ -313,6 +319,19 @@ async function generate(cmd, template) {
         });
         actionOption.EdgeLabels = `Edge labels: ${edgeMode.answer}`;
         break;
+      case actionOption.Quit:
+        const quit = await prompt({
+          message: "Do you want to keep your diagram?",
+          type: "confirm",
+          name: "answer",
+        });
+        if (!quit.answer) {
+          fs.rmSync(cmd.outputFile);
+          if (backedUp) {
+            fs.renameSync(`${cmd.outputFile}.bak`, cmd.outputFile);
+          }
+        }
+        process.exit(0);
     }
   }
 }
