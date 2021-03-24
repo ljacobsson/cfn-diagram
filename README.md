@@ -70,7 +70,7 @@ cfn-dia html
 ```
 
 ### CI-mode
-This functionality lives in its own CLI, [cfn-diagram-ci](https://raw.githubusercontent.com/mhlabs/cfn-diagram-ci). This is beacuse it requires headless Chromium to be installed which makes the package size very large
+This functionality lives in its own CLI, [cfn-diagram-ci](https://github.com/mhlabs/cfn-diagram-ci). This is beacuse it requires headless Chromium to be installed which makes the package size very large
 
 It uses [pageres](https://github.com/sindresorhus/pageres) to generate a screenshot of a HTML diagram. This can be used in a CI/CD pipeline to keep an always up-to-date diagram in your readme-file.
 
