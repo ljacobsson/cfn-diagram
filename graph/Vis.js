@@ -24,9 +24,9 @@ function reset() {
   types = new Set();
 }
 
-function makeGraph(template, prefix, reset) {
+function makeGraph(template, prefix, doReset) {
   if (reset) {
-    reset();
+    doReset();
   }
   jsonUtil.createPseudoResources(template);
 
