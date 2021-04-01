@@ -342,7 +342,7 @@ async function generate(cmd, template) {
           name: "answer",
         });
         if (!quit.answer) {
-          fs.rmSync(cmd.outputFile);
+          fs.unlinkSync(cmd.outputFile);
           if (backedUp) {
             fs.renameSync(`${cmd.outputFile}.bak`, cmd.outputFile);
           }
