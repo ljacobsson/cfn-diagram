@@ -70,7 +70,6 @@ function get(cmd) {
         }
       }
     });
-    console.log(JSON.stringify(template, null, 2))
   return { isJson, template };
 }
 
