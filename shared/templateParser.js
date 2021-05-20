@@ -48,6 +48,29 @@ function get(cmd) {
         templateCache.templates[p] = parsedTemplate;
       }
     });
+  Object.keys(template.Resources)
+    .filter((p) => template.Resources[p].Type === "AWS::Serverless::Function")
+    .map((functionName) => {
+      const res = template.Resources[functionName];
+      const events = res.Properties.Events;
+      if (events) {
+        for (const eventName of Object.keys(events)) {
+          const event = events[eventName];
+          if (["EventBridgeRule", "CloudWatchEvent"].includes(event.Type)) {
+            template.Resources[functionName + eventName] = {
+              Type: "AWS::Events::Rule",
+              Properties: {
+                EventBusName: event.Properties.EventBusName || "default",
+                EventPattern: event.Properties.Pattern,
+                State: "ENABLED",
+                Targets: [{ Arn: { "Fn::GetAtt": [functionName, "Arn"] },  Id: "EventId"}],
+              },
+            };
+          }
+        }
+      }
+    });
+    console.log(JSON.stringify(template, null, 2))
   return { isJson, template };
 }
 
