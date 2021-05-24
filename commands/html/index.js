@@ -13,6 +13,8 @@ program
     "Path to template or cdk.json file",
     "template.yaml or cdk.json"
   )
+  .option("--stacks [stacks]", "Comma separated list of stack name(s) to include. Defaults to all.")
+  .option("-all --render-all", "If set, all nested stacks will be rendered. By default only root template is rendered", false)
   .option("-c, --ci-mode", "Disable terminal/console interactivity", false)
   .option(
     "-o, --output-path [outputPath]",
@@ -29,6 +31,8 @@ program
       templateObj.template,
       template.isJson,
       cmd.outputPath,
-      ciMode
+      ciMode,
+      false,
+      cmd.renderAll
     );
   });

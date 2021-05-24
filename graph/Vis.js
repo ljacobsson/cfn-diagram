@@ -24,7 +24,7 @@ function reset() {
   types = new Set();
 }
 
-function makeGraph(template, prefix, doReset) {
+function makeGraph(template, prefix, doReset, renderAll) {
   if (doReset) {
     reset();
   }
@@ -38,7 +38,7 @@ function makeGraph(template, prefix, doReset) {
       types.add(type);
       if (resObj.Template) {
         nested.push(resource);
-        makeGraph(resObj.Template, resource);
+        makeGraph(resObj.Template, resource, false, renderAll);
       }
       const dependencies = getDependencies(template, resource);
       addnodes(
@@ -46,7 +46,8 @@ function makeGraph(template, prefix, doReset) {
         dependencies,
         type,
         template.Resources[resource],
-        prefix
+        prefix,
+        renderAll
       );
     }
 
@@ -106,14 +107,14 @@ function addEdges(from, to, dependencyNode, fromNode) {
   }
 }
 
-function addnodes(resource, dependencies, type, resourceObject, prefix) {
+function addnodes(resource, dependencies, type, resourceObject, prefix, renderAll) {
   delete resourceObject.Template;
   if (nodes.filter((p) => p.id === resource).length === 0) {
     nodes.push({
       id: `${prefix}.${resource}`,
       dependencies: dependencies,
       prefix: prefix,
-      hidden: prefix != "root",
+      hidden: prefix != "root" && !renderAll,
       type: type,
       label: resource,
       shape: "image",
@@ -162,11 +163,11 @@ function getDependencies(template, resource) {
   return dependencies;
 }
 
-async function renderTemplate(template, isJson, filePath, ciMode, reset) {
+async function renderTemplate(template, isJson, filePath, ciMode, reset, renderAll) {
   useJson = isJson;
-  const { nodes, edges } = makeGraph(template, "root", reset);
+  const { nodes, edges } = makeGraph(template, "root", reset, renderAll);
   const fileContent = `
-  
+  var renderAll = ${renderAll}
   var nodes = new vis.DataSet(${JSON.stringify(nodes)});
   var edges = new vis.DataSet(${JSON.stringify(edges)});
   var nested = ${JSON.stringify(nested.sort())};
