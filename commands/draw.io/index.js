@@ -16,6 +16,7 @@ program
     "Disable terminal/console interactivity",
     false
   )
+  .option("--stacks [stacks]", "Comma separated list of stack name(s) to include. Defaults to all.")
   .option("-o, --output-file [outputFile]", "Name of output file", "template.drawio")
   .option(
     "-co, --cdk-output [outputPath]",

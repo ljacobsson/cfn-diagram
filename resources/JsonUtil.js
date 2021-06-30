@@ -80,13 +80,12 @@ function findAllValues(obj, keyArray, keyName, path) {
         }
         values = multiValue.map((p) => p[0]);
       }
-
       if (prop === "Fn::ImportValue") {
         const split = typeof values[0] ==="string" && values[0].split(":");
         if (split.length == 2) {
           const stackName = split[0];
           const exportName = split[1];
-          const value = templateCache.templates[stackName].Outputs[exportName].Value;
+          const value = templateCache.templates[stackName] ? templateCache.templates[stackName].Outputs[exportName].Value : {"Fn::ImportValue": "Unknown"};
           const intrinsicFunction = Object.keys(value)[0];
           const prefix = stackName === templateCache.rootTemplate ? "root" : stackName;
           values[0] = `${prefix}.${value[intrinsicFunction]}`;

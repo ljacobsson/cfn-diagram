@@ -48,6 +48,28 @@ function get(cmd) {
         templateCache.templates[p] = parsedTemplate;
       }
     });
+  Object.keys(template.Resources)
+    .filter((p) => template.Resources[p].Type === "AWS::Serverless::Function")
+    .map((functionName) => {
+      const res = template.Resources[functionName];
+      const events = res.Properties.Events;
+      if (events) {
+        for (const eventName of Object.keys(events)) {
+          const event = events[eventName];
+          if (["EventBridgeRule", "CloudWatchEvent"].includes(event.Type)) {
+            template.Resources[functionName + eventName] = {
+              Type: "AWS::Events::Rule",
+              Properties: {
+                EventBusName: event.Properties.EventBusName || "default",
+                EventPattern: event.Properties.Pattern,
+                State: "ENABLED",
+                Targets: [{ Arn: { "Fn::GetAtt": [functionName, "Arn"] },  Id: "EventId"}],
+              },
+            };
+          }
+        }
+      }
+    });
   return { isJson, template };
 }
 
@@ -55,16 +77,20 @@ function fromCDK(cmd) {
   if (!cmd.skipSynth) {
     cp.execSync("cdk synth -o " + cmd.cdkOutput);
   }
+  const manifestFile = fs.readFileSync(path.join(cmd.cdkOutput, "manifest.json"));
   const treeFile = fs.readFileSync(path.join(cmd.cdkOutput, "tree.json"));
+  const manifest = JSON.parse(manifestFile);
   const tree = JSON.parse(treeFile);
-  const stacks = Object.keys(tree.tree.children).filter((p) => p !== "Tree");
-  const parentStack = stacks.shift();
+  const includeStacks = cmd.stacks ? cmd.stacks.split(",").map(p=>p.trim()) : null;
+  let stacks = Object.keys(manifest.artifacts).filter((p) => p !== "Tree" && (!includeStacks || includeStacks.includes(p)));  
+  const parentStack = Object.keys(tree.tree.children).filter((p) => p !== "Tree" && (!includeStacks || includeStacks.includes(p)))[0];
   const template = fs.readFileSync(
     path.join(cmd.cdkOutput, `${parentStack}.template.json`)
   );
   const parsedTemplate = JSON.parse(template);
   templateCache.templates[parentStack] = parsedTemplate;
   templateCache.rootTemplate = parentStack;
+  stacks = stacks.filter(p => p != parentStack);
   for (const stack of stacks) {
     const childTemplate = fs.readFileSync(
       path.join(cmd.cdkOutput, `${stack}.template.json`)

@@ -143,7 +143,7 @@
         if (!showSidebar) {
           document.getElementById("filtersContainer").hidden = true;
         }
-        populateFilters("nested-stacks", nested, false, (x) => {
+        populateFilters("nested-stacks", nested, renderAll, (x) => {
           const ns = nodes.get({ filter: (p) => p.prefix === x.target.value });
           for (const n of ns) {
             nodes.update({ id: n.id, hidden: !x.target.checked });
