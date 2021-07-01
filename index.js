@@ -3,6 +3,6 @@ const program = require("commander");
 require("./commands/draw.io");
 require("./commands/html");
 require("./commands/browse");
-const package = require("./package.json");
-program.version(package.version, "-v, --vers", "output the current version");
+const packageDescriptor = require("./package.json");
+program.version(packageDescriptor.version, "-v, --vers", "output the current version");
 program.parse(process.argv);

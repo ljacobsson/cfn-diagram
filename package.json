@@ -1,5 +1,5 @@
 {
-  "name": "@mhlabs/cfn-diagram",
+  "name": "@araguacaima/cfn-diagram2",
   "version": "1.1.27",
   "description": "CLI tool to visualise CloudFormation, SAM or CDK stacks as draw.io or HTML diagrams",
   "main": "index.js",
@@ -12,41 +12,41 @@
     "draw.io",
     "cloudformation"
   ],
-  "author": "mhlabs",
+  "author": "araguacaima",
   "license": "ISC",
   "dependencies": {
-    "@mhlabs/aws-sdk-sso": "0.0.12",
+    "@mhlabs/aws-sdk-sso": "^0.0.16",
     "aws-icons-directory": "^0.0.6",
-    "aws-sdk": "^2.808.0",
-    "color-hash": "^1.0.3",
-    "commander": "^7.1.0",
-    "inquirer": "^7.1.0",
-    "jdom": "^3.1.11",
-    "jsdom": "^16.4.0",
-    "mxgraph": "^4.1.1",
-    "open": "^7.2.1",
+    "aws-sdk": "^2.937.0",
+    "color-hash": "^1.1.1",
+    "commander": "~7.2.0",
+    "inquirer": "^8.1.1",
+    "jdom": "^3.2.1",
+    "jsdom": "^16.6.0",
+    "mxgraph": "^4.2.2",
+    "open": "^8.2.1",
     "open-in-editor": "^2.2.0",
     "temp-dir": "^2.0.0",
-    "yaml-cfn": "^0.2.3"
+    "yaml-cfn": "^0.3.1"
   },
   "devDependencies": {
-    "@aws-cdk/core": "^1.87.1",
-    "jest": "^26.0.1",
-    "node-notifier": ">=8.0.1"
+    "@aws-cdk/core": "~1.109.0",
+    "jest": "^27.0.6",
+    "node-notifier": "^10.0.0"
   },
   "bin": {
-    "cfn-diagram": "index.js",
-    "cfn-dia": "index.js"
+    "cfn-diagram2": "index.js",
+    "cfn-dia2": "index.js"
   },
   "publishConfig": {
     "access": "public"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mhlabs/cfn-diagram.git"
+    "url": "git+https://github.com/araguacaima/cfn-diagram.git"
   },
   "bugs": {
-    "url": "https://github.com/mhlabs/cfn-diagram/issues"
+    "url": "https://github.com/araguacaima/cfn-diagram/issues"
   },
-  "homepage": "https://github.com/mhlabs/cfn-diagram#readme"
+  "homepage": "https://github.com/araguacaima/cfn-diagram#readme"
 }

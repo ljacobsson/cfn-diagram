@@ -4,11 +4,11 @@
 CLI tool to visualise CloudFormation/SAM/CDK templates as diagrams. 
 
 ## Installation
-`npm i -g @mhlabs/cfn-diagram`
+`npm i -g @araguacaima/cfn-diagram2`
 
 ## Usage
 ```
-Usage: cfn-dia [options] [command]
+Usage: cfn-dia2 [options] [command]
 
 Options:
   -v, --vers                          Output the current version
@@ -40,7 +40,7 @@ Html Options:
 
 ### Draw.io
 ```
-Usage: cfn-dia draw.io|d [options]
+Usage: cfn-dia2 draw.io|d [options]
 
 Generates a draw.io diagram from a CloudFormation template
 
@@ -63,7 +63,7 @@ Use it in combination with the [Draw.io Integration](https://marketplace.visuals
 
 #### Example 
 ```
-cfn-dia draw.io -t template.yaml
+cfn-dia2 draw.io -t template.yaml
 ```
 
 #### Features 
@@ -75,7 +75,7 @@ cfn-dia draw.io -t template.yaml
 
 ### HTML
 ```
-Usage: cfn-dia html|h [options]
+Usage: cfn-dia2 html|h [options]
 
 Generates a vis.js diagram from a CloudFormation template
 
@@ -98,11 +98,11 @@ The HTML output uses [vis.js](https://github.com/visjs/vis-network) to generate 
 
 #### Example 
 ```
-cfn-dia html -t template.yaml
+cfn-dia2 html -t template.yaml
 ```
 or, for CDK stacks, go to project directory (where cdk.json is located) and enter
 ```
-cfn-dia html 
+cfn-dia2 html 
 ```
 
 Large stacks, in particular multi-stack CDK projects, tend to generate huge diagrams. You can pass the stack names you want to render using the `--stacks` argument followed by a comma separated list of stack names.
@@ -119,7 +119,7 @@ npm install -g @mhlabs/cfn-diagram-ci
 
 #### Example 
 ```
-cfn-dia-ci html -t template.yaml
+cfn-dia2-ci html -t template.yaml
 ```
 
 
