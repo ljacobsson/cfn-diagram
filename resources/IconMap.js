@@ -95,7 +95,7 @@ const icons = {
     icon: "mxgraph.aws4.waf",
     serviceType: "securityidentitycomplicance",
   }
-  
+
 };
 
 const colors = {
@@ -263,7 +263,7 @@ function getIcon(type) {
       gradientColor: color ? color.gradientColor : "#aaaaaa",
     };
   }
-  return `outlineConnect=0;fontColor=#B3B3B3;gradientColor=${icon.gradientColor};gradientDirection=north;fillColor=${icon.fillColor};strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=${icon.icon};`;
+  return `outlineConnect=0;fontColor=#666666;gradientColor=${icon.gradientColor};gradientDirection=north;fillColor=${icon.fillColor};strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=${icon.icon};`;
 }
 
 module.exports = {

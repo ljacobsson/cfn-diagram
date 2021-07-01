@@ -20,6 +20,8 @@ const actionOption = {
 const YAML = require("yaml-cfn");
 const purposeTag = "mv:purpose";
 const groupHeight = 270;
+const groupWidth = 120;
+const groupIdSuffix = "-purpose-label-text";
 
 global.window = dom.window;
 global.document = window.document;
@@ -76,7 +78,7 @@ function makeGraph(template, prefix = "root") {
     const layout = new mxgraph[currentLayout](graph, mxConstants.DIRECTION_NORTH, true);
     const resources = Object.keys(template.Resources);
     layout.orientation = "west";
-    layout.intraCellSpacing = 50;
+    layout.intraCellSpacing = 100;
     layout.interRankCellSpacing = 200;
     layout.interHierarchySpacing = 100;
     layout.parallelEdgeSpacing = 20;
@@ -181,7 +183,7 @@ function addVertices(resourceId, serviceName, componentFunction, dependencies, t
         if (!serviceName) {
             serviceName = resourceId;
         }
-        const groupId = resourceId + "-group";
+        const groupId = resourceId + groupIdSuffix;
         const groupX = locationCache[resourceId] ? locationCache[resourceId].x : 70;
         const groupY = locationCache[resourceId] ? locationCache[resourceId].y : 0;
 
@@ -194,17 +196,17 @@ function addVertices(resourceId, serviceName, componentFunction, dependencies, t
             0,
             50,
             50,
-            iconMap.getIcon(type)
+            "group;" + iconMap.getIcon(type)
         );
-        const groupVertex = graph.insertVertex(
+        graph.insertVertex(
             vertex,
             groupId,
             componentFunction,
-            0,
-            0,
+            -2.25,
+            -0.55,
             groupHeight,
-            100,
-            "group",
+            groupWidth,
+            "text;html=1;strokeColor=none;fillColor=none;align=top;verticalAlign=top;whiteSpace=wrap;rounded=0;fontColor=#4D4D4D;fontStyle=3",
             true
         );
         vertices.push({
@@ -272,9 +274,26 @@ function edgeId(to, from) {
     return `${to.id}|${from.id}`; //|${pathToDescriptor(dependencyNode.path)}`;
 }
 
+function alignModel(model) {
+    const children = model.root.children;
+    for (const child_ of children) {
+        for (const child of child_.children) {
+            if (child.children) {
+                const geometry = child.children.find((c) => c.id.endsWith(groupIdSuffix))?.geometry;
+                if (geometry) {
+                    geometry.x = -2.3;
+                    geometry.y = -0.6;
+                    geometry.relative = true;
+                }
+            }
+        }
+    }
+}
+
 function graphToXML(graph) {
     var encoder = new mxCodec();
     let model = graph.getModel();
+    //alignModel(model);
     var encodedModel = encoder.encode(model);
     let result = `${mxUtils.getXml(encodedModel)}`;
     //let result = `${mxUtils.getXml(model)}`;
