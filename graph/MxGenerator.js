@@ -29,7 +29,7 @@ global.XMLSerializer = window.XMLSerializer;
 global.navigator = window.navigator;
 
 const mxgraph = require("mxgraph")({});
-const {mxGraph, mxCodec, mxUtils, mxConstants, mxHierarchicalEdgeStyle, mxCircleLayout} = mxgraph;
+const {mxGraph, mxCodec, mxUtils, mxConstants, mxCellRenderer} = mxgraph;
 
 const layouts = [
     {name: "Organic", value: "mxFastOrganicLayout"},
@@ -89,7 +89,7 @@ function makeGraph(template, prefix = "root") {
         for (const id of resources) {
             const resObj = template.Resources[id];
             let serviceName = extractServiceName(resObj);
-            let componentFunction = extractMetadataPath(resObj);
+            let componentFunction = extractMetadataPath(resObj) || id;
             const type = resObj.Type;
             if (
                 (filterConfig.resourceTypesToInclude &&
@@ -274,29 +274,11 @@ function edgeId(to, from) {
     return `${to.id}|${from.id}`; //|${pathToDescriptor(dependencyNode.path)}`;
 }
 
-function alignModel(model) {
-    const children = model.root.children;
-    for (const child_ of children) {
-        for (const child of child_.children) {
-            if (child.children) {
-                const geometry = child.children.find((c) => c.id.endsWith(groupIdSuffix))?.geometry;
-                if (geometry) {
-                    geometry.x = -2.3;
-                    geometry.y = -0.6;
-                    geometry.relative = true;
-                }
-            }
-        }
-    }
-}
-
 function graphToXML(graph) {
-    var encoder = new mxCodec();
+    const encoder = new mxCodec();
     let model = graph.getModel();
-    //alignModel(model);
-    var encodedModel = encoder.encode(model);
-    let result = `${mxUtils.getXml(encodedModel)}`;
-    //let result = `${mxUtils.getXml(model)}`;
+    const encodedModel = encoder.encode(model);
+    let result = mxUtils.getXml(encodedModel);
     return `<mxfile host="" modified="2020-05-24T15:21:41.060Z" agent="5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.45.0 Chrome/78.0.3904.130 Electron/7.2.4 Safari/537.36" version="13.1.3" etag="lrwgP8mNOWNbAz78NI_h" pages="2">
             <diagram id="diagramid" name="Diagram">
               ${result}
@@ -305,8 +287,8 @@ function graphToXML(graph) {
 }
 
 function renderTemplate(template) {
-    const xml = graphToXML(makeGraph(template));
-    return xml;
+    let graph = makeGraph(template);
+    return graphToXML(graph);
 }
 
 async function generate(cmd, template) {
