@@ -82,8 +82,8 @@ function fromCDK(cmd) {
   const manifest = JSON.parse(manifestFile);
   const tree = JSON.parse(treeFile);
   const includeStacks = cmd.stacks ? cmd.stacks.split(",").map(p=>p.trim()) : null;
-  let stacks = Object.keys(manifest.artifacts).filter((p) => p !== "Tree" && (!includeStacks || includeStacks.includes(p)));  
-  const parentStack = Object.keys(tree.tree.children).filter((p) => p !== "Tree" && (!includeStacks || includeStacks.includes(p)))[0];
+  let stacks = Object.keys(manifest.artifacts).filter((p) => p !== "Tree" && (!includeStacks || includeStacks.includes(p)));
+  const parentStack = Object.keys(tree.tree.children).filter((p) => p !== "Tree" && !p.includes(".assets") && (!includeStacks || includeStacks.includes(p)))[0];
   const template = fs.readFileSync(
     path.join(cmd.cdkOutput, `${parentStack}.template.json`)
   );
