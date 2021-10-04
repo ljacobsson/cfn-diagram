@@ -107,6 +107,26 @@ cfn-dia html
 
 Large stacks, in particular multi-stack CDK projects, tend to generate huge diagrams. You can pass the stack names you want to render using the `--stacks` argument followed by a comma separated list of stack names.
 
+### Ascii-art
+```
+Usage: cfn-diagram ascii-art|a [options]
+
+Generates an ascii-art diagram from a CloudFormation template
+
+Options:
+  -t, --template-file [templateFile]     Path to template or cdk.json file (default: "template.yaml or cdk.json")
+  --stacks [stacks]                      Comma separated list of stack name(s) to include. Defaults to all.
+  -co, --cdk-output [outputPath]         CDK synth output path (default: "cdk.out")
+  -s, --skip-synth                       Skips CDK synth (default: false)
+  -e, --exclude-types [excludeTypes...]  List of resource types to exclude when using CI mode
+  -h, --help                             display help for command
+```
+
+Renders a simple Ascii-art diagram of your template directly in the console. Useful to gain a quick overview of smaller stacks.
+
+![Demo](https://raw.githubusercontent.com/mhlabs/cfn-diagram/master/demo-ascii.gif)
+
+
 ### CI-mode
 This functionality lives in its own CLI, [cfn-diagram-ci](https://github.com/mhlabs/cfn-diagram-ci). This is beacuse it requires headless Chromium to be installed which makes the package size very large
 

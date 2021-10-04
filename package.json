@@ -1,7 +1,7 @@
 {
   "name": "@mhlabs/cfn-diagram",
-  "version": "1.1.29",
-  "description": "CLI tool to visualise CloudFormation, SAM or CDK stacks as draw.io or HTML diagrams",
+  "version": "1.1.30",
+  "description": "CLI tool to visualise CloudFormation, SAM or CDK stacks as draw.io, visjs networks or ascii-art",
   "main": "index.js",
   "scripts": {
     "test": "jest"
@@ -18,8 +18,11 @@
     "@mhlabs/aws-sdk-sso": "0.0.12",
     "aws-icons-directory": "^0.0.6",
     "aws-sdk": "^2.808.0",
+    "cli-color": "^2.0.0",
+    "color-convert": "^2.0.1",
     "color-hash": "^1.0.3",
     "commander": "^7.1.0",
+    "fast-xml-parser": "^3.20.3",
     "inquirer": "^7.1.0",
     "jdom": "^3.1.11",
     "jsdom": "^16.4.0",
