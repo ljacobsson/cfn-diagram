@@ -126,6 +126,8 @@ Options:
 Renders a simple Ascii-art diagram of your template directly in the console. Useful to gain a quick overview of smaller stacks.
 
 ![Demo](https://raw.githubusercontent.com/mhlabs/cfn-diagram/master/demo-ascii.gif)
+
+Video demo of using the `--watch` command
 [![Demo of watch command](https://img.youtube.com/vi/DwDHd0OUUTc/0.jpg)](https://www.youtube.com/watch?v=DwDHd0OUUTc)
 
 
