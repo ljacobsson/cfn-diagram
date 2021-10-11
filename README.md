@@ -109,7 +109,7 @@ Large stacks, in particular multi-stack CDK projects, tend to generate huge diag
 
 ### Ascii-art
 ```
-Usage: cfn-diagram ascii-art|a [options]
+Usage: cfn-dia ascii-art|a [options]
 
 Generates an ascii-art diagram from a CloudFormation template
 
@@ -118,13 +118,15 @@ Options:
   --stacks [stacks]                      Comma separated list of stack name(s) to include. Defaults to all.
   -co, --cdk-output [outputPath]         CDK synth output path (default: "cdk.out")
   -s, --skip-synth                       Skips CDK synth (default: false)
+  -w, --watch                            Watch for changes in template and rerender diagram on change (default: false)
   -e, --exclude-types [excludeTypes...]  List of resource types to exclude when using CI mode
-  -h, --help                             display help for command
+  -h, --help                             display help for command                           display help for command
 ```
 
 Renders a simple Ascii-art diagram of your template directly in the console. Useful to gain a quick overview of smaller stacks.
 
 ![Demo](https://raw.githubusercontent.com/mhlabs/cfn-diagram/master/demo-ascii.gif)
+[![Demo of watch command](https://img.youtube.com/vi/DwDHd0OUUTc/0.jpg)](https://www.youtube.com/watch?v=DwDHd0OUUTc)
 
 
 ### CI-mode
