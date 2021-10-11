@@ -31,6 +31,7 @@ function get(cmd) {
     template = fromCDK(cmd);
   }
   templateCache.templates["root"] = template;
+  if (!template.Resources) return { isJson, template };
   Object.keys(template.Resources)
     .filter((p) => template.Resources[p].Type === "AWS::CloudFormation::Stack")
     .map((p) => {
