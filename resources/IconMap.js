@@ -11,6 +11,14 @@ const icons = {
     icon: "mxgraph.aws4.api_gateway",
     serviceType: "networkingcontentdelivery",
   },
+  "AWS::Serverless::HttpApi": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::Serverless::StateMachine": {
+    icon: "mxgraph.aws4.step_functions",
+    serviceType: "applicationintegration",
+  },
   "AWS::Lambda::Permission": {
     icon: "mxgraph.aws4.policy",
     serviceType: "securityidentitycomplicance",
@@ -94,8 +102,59 @@ const icons = {
   "AWS::WAFv2::WebACLAssociation": {
     icon: "mxgraph.aws4.waf",
     serviceType: "securityidentitycomplicance",
-  }
-  
+  },
+  "AWS::ApiGatewayV2::Api": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::ApiGatewayManagedOverrides": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::ApiMapping": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::Authorizer": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::Deployment": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::DomainName": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::Integration": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::IntegrationResponse": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::Model": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::Route": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::RouteResponse": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::Stage": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
+  "AWS::ApiGatewayV2::VpcLink": {
+    icon: "mxgraph.aws4.api_gateway",
+    serviceType: "networkingcontentdelivery",
+  },
 };
 
 const colors = {
@@ -244,7 +303,7 @@ const serviceTranslation = {
   kms: "key_management_service",
   stepfunctions: "step_functions",
   events: "eventbridge",
-  logs: "cloudwatch"
+  logs: "cloudwatch",
 };
 
 function getIcon(type) {
