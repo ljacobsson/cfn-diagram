@@ -127,8 +127,8 @@ Renders a simple Ascii-art diagram of your template directly in the console. Use
 
 ![Demo](https://raw.githubusercontent.com/mhlabs/cfn-diagram/master/demo-ascii.gif)
 
-Video demo of using the `--watch` command
-[![Demo of watch command](https://img.youtube.com/vi/DwDHd0OUUTc/0.jpg)](https://www.youtube.com/watch?v=DwDHd0OUUTc)
+Video demo of using the `--watch` option:
+[![Demo of watch command](https://img.youtube.com/vi/2V3zimGWTcU/0.jpg)](https://www.youtube.com/watch?v=2V3zimGWTcU)
 
 
 ### CI-mode
