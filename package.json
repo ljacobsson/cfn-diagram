@@ -15,7 +15,7 @@
   "author": "mhlabs",
   "license": "ISC",
   "dependencies": {
-    "@mhlabs/aws-sdk-sso": "0.0.12",
+    "@mhlabs/aws-sdk-sso": "0.0.16",
     "aws-icons-directory": "^0.0.6",
     "aws-sdk": "^2.808.0",
     "cli-color": "^2.0.0",
