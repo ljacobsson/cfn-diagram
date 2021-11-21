@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-process.env.AWS_SDK_LOAD_CONFIG = 1;
 const program = require("commander");
 require("./commands/draw.io");
 require("./commands/html");
