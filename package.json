@@ -21,7 +21,7 @@
     "cli-color": "^2.0.0",
     "color-convert": "^2.0.1",
     "color-hash": "^1.0.3",
-    "commander": "^7.1.0",
+    "commander": "^8.3.0",
     "fast-xml-parser": "^3.20.3",
     "inquirer": "^8.2.0",
     "jdom": "^3.1.11",
