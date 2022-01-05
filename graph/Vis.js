@@ -178,6 +178,7 @@ async function renderTemplate(
   filePath,
   ciMode,
   reset,
+  standaloneIndex,
   renderAll
 ) {
   useJson = isJson;
@@ -194,6 +195,20 @@ async function renderTemplate(
   if (!fs.existsSync(uiPath)) {
     fs.mkdirSync(uiPath);
   }
+  if (standaloneIndex) {
+    fs.readFile(path.join(__dirname, "ui", "index_standalone.template"), 'utf8', function (err, data) {
+      if (err) {
+        return console.log(err);
+      }
+      var result = data.replace(/%DATA_JS%/g, fileContent);
+
+      fs.writeFile(path.join(uiPath, "index.html"), result, 'utf8', function (err) {
+        if (err) return console.log(err);
+      });
+  });
+  }
+  else
+  {
   fs.copyFileSync(
     path.join(__dirname, "ui", "index.html"),
     path.join(uiPath, "index.html")
@@ -203,6 +218,7 @@ async function renderTemplate(
     path.join(uiPath, "icons.js")
   );
   fs.writeFileSync(path.join(uiPath, "data.js"), fileContent);
+  }
   if (!ciMode) {
     open(path.join(uiPath, "index.html"));
   }
