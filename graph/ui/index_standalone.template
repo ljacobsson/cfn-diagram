@@ -1,0 +1,166 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <style type="text/css">
+      #mynetwork {
+        width: 100%;
+        height: 100vh;
+        border: 1px solid lightgray;
+      }
+      .body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      #filtersContainer {
+        left: 0px;
+        top: 0px;
+        height: 100vh;
+        width: 400px;
+        background-color: rgba(80, 197, 251, 0.7);
+        border: blue 4px;
+        padding: 3px 3px 3px 3px;
+        z-index: 2999;
+        position: absolute;
+        font-family: "Courier New", Courier, monospace;
+        overflow: scroll;
+      }
+    </style>
+    <script
+      type="text/javascript"
+      src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"
+    ></script>
+
+    <script type="text/javascript">
+      %DATA_JS%
+    </script>
+
+    <script type="text/javascript">
+      let network;
+      const rule = {
+        EventPattern: '{"source":["aws.events"]}',
+        EventBusName: "default",
+        Target: "MyFunction",
+        Name: "AllAWSEvents -> MyFunction",
+        InputPath: undefined,
+        Input: undefined,
+        InputTransformer: {
+          InputPathsMap: {
+            source: "$.source",
+            detailType: "$.detail-type",
+            time: "$.time",
+          },
+          InputTemplate:
+            '{"source": <source>, "detail-type": <detailType>, "time": <time> }',
+        },
+      };
+      function preTitle(text) {
+        const container = document.createElement("pre");
+        container.innerText = text; // You may also use innerHTML if your source is trusted.
+        return container;
+      }
+
+      function draw() {
+        // create a network
+        var container = document.getElementById("mynetwork");
+        nodes.forEach((node => {
+          node.title = preTitle(node.title);
+        }));
+        var data = {
+          nodes: nodes,
+          edges: edges,
+        };
+        
+        var options = {
+          nodes: {
+            shape: "dot",
+            size: 16,
+          },
+          edges: {
+            arrows: {
+              to: {
+                enabled: true,
+                imageHeight: undefined,
+                imageWidth: undefined,
+                scaleFactor: 1,
+                src: undefined,
+                type: "arrow",
+              },
+            },
+          },
+          physics: {
+            forceAtlas2Based: {
+              gravitationalConstant: -26,
+              centralGravity: 0.005,
+              springLength: 230,
+              springConstant: 0.18,
+            },
+            maxVelocity: 146,
+            solver: "forceAtlas2Based",
+            timestep: 0.35,
+            stabilization: { iterations: 150 },
+          },
+        };
+        network = new vis.Network(container, data, options);
+        network.body.emitter.emit("_dataChanged");
+      }
+      function populateFilters(conatainerName, data, checked, func) {
+        var container = document.getElementById(conatainerName);
+        if (!data.length) {
+          container.style.visibility = "hidden";
+        }
+        for (const name of data) {
+          var checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = name;
+          checkbox.checked = checked;
+          checkbox.name = conatainerName;
+          checkbox.value = name;
+          checkbox.addEventListener("click", func);
+          var label = document.createElement("label");
+          label.htmlFor = name;
+          label.appendChild(document.createTextNode(name));
+
+          var br = document.createElement("br");
+
+          container.appendChild(checkbox);
+          container.appendChild(label);
+          container.appendChild(br);
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="mynetwork"></div>
+    <div id="filtersContainer">
+      <div id="resource-types">
+        <strong>Include resource types:</strong><br />
+      </div>
+      <div id="nested-stacks">
+        <hr />
+        <strong>Include nested stack(s):</strong><br />
+      </div>
+    </div>
+    <script>
+      window.onload = function (event) {
+        if (!showSidebar) {
+          document.getElementById("filtersContainer").hidden = true;
+        }
+        populateFilters("nested-stacks", nested, renderAll, (x) => {
+          const ns = nodes.get({ filter: (p) => p.prefix === x.target.value });
+          for (const n of ns) {
+            nodes.update({ id: n.id, hidden: !x.target.checked });
+          }
+          network.redraw();
+        });
+        populateFilters("resource-types", types, true, (x) => {
+          const ns = nodes.get({ filter: (p) => p.type === x.target.value });
+          for (const n of ns) {
+            nodes.update({ id: n.id, hidden: !x.target.checked });
+          }
+          network.redraw();
+        });
+        draw();
+      };
+    </script>
+  </body>
+</html>
