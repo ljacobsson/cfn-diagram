@@ -68,6 +68,22 @@ function get(cmd) {
               },
             };
           }
+          if (["Api"].includes(event.Type)) {
+            template.Resources[functionName + eventName] = {
+              Type: "AWS::ApiGateway::RestApi",
+              Properties: {
+                Integration: [{ Arn: { "Fn::GetAtt": [functionName, "Arn"] },  Id: "EventId"}],
+              },
+            };
+          }
+          if (["HttpApi"].includes(event.Type)) {
+            template.Resources[functionName + eventName] = {
+              Type: "AWS::ApiGatewayV2::Api",
+              Properties: {
+                Integration: [{ Arn: { "Fn::GetAtt": [functionName, "Arn"] },  Id: "EventId"}],
+              },
+            };
+          }
         }
       }
     });
