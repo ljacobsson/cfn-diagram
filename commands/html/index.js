@@ -23,6 +23,7 @@ program
   )
   .option("-co, --cdk-output [outputPath]", "CDK synth output path", `cdk.out`)
   .option("-s, --skip-synth", "Skips CDK synth", false)
+  .option("-sa, --standalone", "Creates a self-contained standalone index.html", false)
   .description("Generates a vis.js diagram from a CloudFormation template")
   .action(async (cmd) => {
     ciMode = cmd.ciMode;
@@ -33,6 +34,7 @@ program
       cmd.outputPath,
       ciMode,
       false,
+      cmd.standalone,
       cmd.renderAll
     );
   });
