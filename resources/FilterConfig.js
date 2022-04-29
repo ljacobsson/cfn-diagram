@@ -4,6 +4,6 @@ let edgeStatus;
 
 module.exports = {
     resourceTypesToInclude,
-    resourceNamesToInclude, 
+    resourceNamesToInclude,
     edgeMode: edgeStatus
 }

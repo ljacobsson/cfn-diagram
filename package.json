@@ -1,7 +1,7 @@
 {
-  "name": "@araguacaima/cfn-diagram2",
-  "version": "1.1.27",
-  "description": "CLI tool to visualise CloudFormation, SAM or CDK stacks as draw.io or HTML diagrams",
+  "name": "@araguacaima/cdkv2-cfn-diagram",
+  "version": "1.1.33",
+  "description": "CLI tool to visualise CloudFormation, SAM or CDK v2 stacks as draw.io, visjs networks or ascii-art",
   "main": "index.js",
   "scripts": {
     "test": "jest"
@@ -10,33 +10,37 @@
     "aws",
     "sam",
     "draw.io",
-    "cloudformation"
+    "cloudformation",
+    "cdk",
+    "cdk-v2"
   ],
   "author": "araguacaima",
   "license": "ISC",
   "dependencies": {
-    "@mhlabs/aws-sdk-sso": "^0.0.16",
     "aws-icons-directory": "^0.0.6",
-    "aws-sdk": "^2.937.0",
-    "color-hash": "^1.1.1",
-    "commander": "~7.2.0",
-    "inquirer": "^8.1.1",
-    "jdom": "^3.2.1",
-    "jsdom": "^16.6.0",
+    "@aws-sdk/client-cloudformation": "^3.80.0",
+    "@aws-sdk/credential-providers": "^3.80.0",
+    "cli-color": "^2.0.2",
+    "color-convert": "^2.0.1",
+    "color-hash": "^2.0.1",
+    "commander": "~9.2.0",
+    "fast-xml-parser": "^4.0.7",
+    "inquirer": "^8.2.4",
+    "jdom": "^3.2.5",
+    "jsdom": "^19.0.0",
     "mxgraph": "^4.2.2",
-    "open": "^8.2.1",
+    "open": "^8.4.0",
     "open-in-editor": "^2.2.0",
     "temp-dir": "^2.0.0",
     "yaml-cfn": "^0.3.1"
   },
   "devDependencies": {
-    "@aws-cdk/core": "~1.109.0",
-    "jest": "^27.0.6",
-    "node-notifier": "^10.0.0"
+    "aws-cdk-lib": "~2.22.0",
+    "node-notifier": "^10.0.1",
+    "jest": "^28.0.3"
   },
   "bin": {
-    "cfn-diagram2": "index.js",
-    "cfn-dia2": "index.js"
+    "cdkv2-cfn-diagram": "index.js"
   },
   "publishConfig": {
     "access": "public"

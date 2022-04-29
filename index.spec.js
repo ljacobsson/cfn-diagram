@@ -6,7 +6,7 @@ test('Code should be 0', async () => {
     jest.setTimeout(30000);
 
     console.log("output path set to " + os.tmpdir() + '/template.drawio')
-    let result = await cli(['draw.io', '--template-file', './tests/template.json', '--output-file', os.tmpdir() + '/template.drawio', '--ci-mode' ], '.');
+    let result = await cli(['draw.io', '--template-file', './tests/template.json', '--output-file', os.tmpdir() + '/template.drawio', '--ci-mode'], '.');
     console.log(result.stdout)
     console.log(result.stderr)
     expect(result.code).toBe(0);
@@ -23,7 +23,7 @@ test('Code should be 0', async () => {
 function cli(args, cwd) {
     return new Promise(resolve => {
         exec(`node ${path.resolve('./index.js')} ${args.join(' ')}`,
-            { cwd },
+            {cwd},
             (error, stdout, stderr) => {
                 resolve({
                     code: error && error.code ? error.code : 0,
