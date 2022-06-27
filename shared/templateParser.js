@@ -108,7 +108,7 @@ function fromCDK(cmd) {
   templateCache.templates[parentStack] = parsedTemplate;
   templateCache.rootTemplate = parentStack;
   stacks = stacks.filter(p => p != parentStack);
-  for (const stack of stacks) {
+  for (const stack of stacks.filter(p => !p.endsWith(".assets"))) {
     const childTemplate = fs.readFileSync(
       path.join(cmd.cdkOutput, `${stack}.template.json`)
     );
