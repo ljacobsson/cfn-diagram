@@ -227,4 +227,5 @@ async function renderTemplate(
 module.exports = {
   renderTemplate,
   reset,
+  makeGraph
 };
