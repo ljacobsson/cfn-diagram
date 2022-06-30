@@ -130,6 +130,25 @@ Renders a simple Ascii-art diagram of your template directly in the console. Use
 Video demo of using the `--watch` option:
 [![Demo of watch command](https://img.youtube.com/vi/2V3zimGWTcU/0.jpg)](https://www.youtube.com/watch?v=2V3zimGWTcU)
 
+### Mermaid
+```
+Usage: cfn-dia mermaid|m [options]
+
+Generates a mermaid graph from a template
+
+Options:
+  -t, --template-file [templateFile]  Path to template or cdk.json file (default: "template.yaml or cdk.json")
+  -all --render-all                   If set, all nested stacks will be rendered. By default only root template is rendered (default: false)
+  -o, --output-path [outputPath]      Name of output file
+  -co, --cdk-output [cdkOutputPath]   CDK synth output path (default: "cdk.out")
+  -s, --skip-synth                    Skips CDK synth (default: false)
+  -h, --help                          display help for command
+```
+
+Renders a [mermaid](https://mermaid-js.github.io/mermaid/#/) diagram of your template directly in the console or to a file. Useful to gain a quick overview of smaller stacks and to generate as part of your CI/CD flow for up-to-date documentation.
+
+![Demo](https://raw.githubusercontent.com/mhlabs/cfn-diagram/master/images/demo-mermaid.gif)
+
 
 ### CI-mode
 This functionality lives in its own CLI, [cfn-diagram-ci](https://github.com/mhlabs/cfn-diagram-ci). This is beacuse it requires headless Chromium to be installed which makes the package size very large
