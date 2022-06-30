@@ -18,7 +18,7 @@
   "dependencies": {
     "@mhlabs/aws-sdk-sso": "0.0.16",
     "aws-icons-directory": "^0.0.6",
-    "aws-sdk": "^2.808.0",
+    "aws-sdk": "^2.1166.0",
     "cli-color": "^2.0.0",
     "color-convert": "^2.0.1",
     "color-hash": "^1.0.3",
