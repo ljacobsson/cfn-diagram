@@ -1,19 +1,22 @@
-const clc = require("cli-color");
-const parser = require("fast-xml-parser");
-const colorConvert = require("color-convert");
+import cliColorPkg from 'cli-color';
+const { bgYellow, bgRed, bgBlue, move, xterm, bgXterm, bgBlack } = cliColorPkg;
+import { parse } from "fast-xml-parser";
+import hexPkg from 'color-convert';
+const { hex } = hexPkg;
+
 const yScale = 12;
 const xScale = 7;
 const serviceColors = {
-  lambda: clc.bgYellow,
-  apigateway: clc.bgRed,
-  sqs: clc.bgRed,
-  sns: clc.bgRed,
-  dynamodb: clc.bgBlue,
+  lambda: bgYellow,
+  apigateway: bgRed,
+  sqs: bgRed,
+  sns: bgRed,
+  dynamodb: bgBlue,
 };
 
 let highestY = 0;
-function render(xml) {
-  const doc = parser.parse(xml, {
+export function render(xml) {
+  const doc = parse(xml, {
     ignoreAttributes: false,
     attributeNamePrefix: "",
   });
@@ -61,12 +64,12 @@ function render(xml) {
       highestY = Math.max(cell.mxGeometry.y + 4, highestY);
     }
   }
-  process.stdout.write(clc.move.bottom);
-  process.stdout.write(clc.move.lineBegin);
+  process.stdout.write(move.bottom);
+  process.stdout.write(move.lineBegin);
 }
 
 function edge(fromX, fromY, toX, toY, color, isLast) {
-  const coloredLine = clc.xterm(color);
+  const coloredLine = xterm(color);
   let x = fromX;
   let y = fromY;
   const deltaX = Math.max(Math.min(1, (toX - fromX) / xScale), -1);
@@ -125,7 +128,7 @@ function edge(fromX, fromY, toX, toY, color, isLast) {
 
 function box(x, y, type, text, color) {
   const coloredBox =
-    clc.bgXterm(rgbToX256(...colorConvert.hex.rgb(color))) || clc.bgBlack;
+    bgXterm(rgbToX256(...hex.rgb(color))) || bgBlack;
 
   y = y || 0;
   x = x || 0;
@@ -153,11 +156,11 @@ function print(coloredBox, text) {
 }
 
 function moveToAbsolute(x, y) {
-  process.stdout.write(clc.move.to(x, y + 7));
+  process.stdout.write(move.to(x, y + 7));
 }
 
 function moveToRelative(x, y) {
-  process.stdout.write(clc.move(x, y));
+  process.stdout.write(move(x, y));
 }
 
 function rgbToX256(r, g, b) {
@@ -198,6 +201,6 @@ function rgbToX256(r, g, b) {
   return colorErr <= grayErr ? 16 + colorIndex : 232 + grayIndex;
 }
 
-module.exports = {
+export default {
   render,
 };

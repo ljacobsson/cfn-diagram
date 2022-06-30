@@ -1,23 +1,23 @@
 "use strict";
-const jsdom = require("jsdom");
+import jsdom from "jsdom";
 const { JSDOM } = jsdom;
 const dom = new JSDOM();
-const jsonUtil = require("../resources/JsonUtil");
-const iconMap = require("../resources/IconMap");
-const filterConfig = require("../resources/FilterConfig");
-const fs = require("fs");
-const inquirer = require("inquirer");
-const templateCache = require("../shared/templateCache");
-const openInEditor = require("open-in-editor");
+import { pathToDescriptor, findAllValues, createPseudoResources } from "../resources/JsonUtil.js";
+import { getIcon } from "../resources/IconMap.js";
+import filterConfig, { resourceTypesToInclude, resourceNamesToInclude, edgeMode as _edgeMode } from "../resources/FilterConfig.js";
+import { existsSync, copyFileSync, writeFileSync, unlinkSync, renameSync } from "fs";
+import inquirer from "inquirer";
+import { templates } from "../shared/templateCache.js";
+import { configure } from "open-in-editor";
 const prompt = inquirer.createPromptModule();
-const templateHelper = require("../shared/templateParser");
+import { get } from "../shared/templateParser.js";
 const actionOption = {
   FilterResourceTypes: "Filter resources by type",
   FilterResourceName: "Filter resources by name",
   EdgeLabels: "Edge labels: On",
   Quit: "Quit",
 };
-const YAML = require("yaml-cfn");
+import YAML from "yaml-cfn";
 
 global.window = dom.window;
 global.document = window.document;
@@ -42,14 +42,14 @@ let locationCache = {};
 let graph = new mxGraph();
 let parent = graph.getDefaultParent();
 
-function reset() {
+export function reset() {
   graph = new mxGraph();
   parent = graph.getDefaultParent();
   vertices = [];
   locationCache = {};
 }
 
-function makeGraph(template, prefix = "root") {
+export function makeGraph(template, prefix = "root") {
   const layout = new mxgraph[currentLayout](graph, true, 500);
   const resources = Object.keys(template.Resources);
   layout.orientation = "west";
@@ -65,10 +65,10 @@ function makeGraph(template, prefix = "root") {
       const resObj = template.Resources[resource];
       const type = resObj.Type;
       if (
-        (filterConfig.resourceTypesToInclude &&
-          filterConfig.resourceNamesToInclude &&
-          !filterConfig.resourceTypesToInclude.includes(type)) ||
-        !filterConfig.resourceNamesToInclude.includes(resource)
+        (resourceTypesToInclude &&
+          resourceNamesToInclude &&
+          !resourceTypesToInclude.includes(type)) ||
+        !resourceNamesToInclude.includes(resource)
       ) {
         updateFilters(type, resource, prefix);
         continue;
@@ -115,14 +115,14 @@ function addEdges(from, to, dependencyNode) {
 
     if (existingEdges.length > 0) {
       const existingEdge = graph.model.cells[existingEdges[0]];
-      if (filterConfig.edgeMode === "Off") {
+      if (_edgeMode === "Off") {
         existingEdge.value = "";
       } else if (
         !existingEdge.value.includes(
-          jsonUtil.pathToDescriptor(dependencyNode.path, filterConfig)
+          pathToDescriptor(dependencyNode.path, filterConfig)
         )
       ) {
-        existingEdge.value += `\n${jsonUtil.pathToDescriptor(
+        existingEdge.value += `\n${pathToDescriptor(
           dependencyNode.path,
           filterConfig
         )}`;
@@ -142,7 +142,7 @@ function addEdges(from, to, dependencyNode) {
       graph.insertEdge(
         parent,
         edgeId(to, from),
-        jsonUtil.pathToDescriptor(dependencyNode.path, filterConfig),
+        pathToDescriptor(dependencyNode.path, filterConfig),
         from,
         to,
         "edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;labelBackgroundColor=none;fontColor=#EA6B66;"
@@ -165,7 +165,7 @@ function addVertices(resource, dependencies, type, prefix) {
         locationCache[resource] ? locationCache[resource].y : 0,
         50,
         50,
-        iconMap.getIcon(type)
+        getIcon(type)
       ),
     });
   }
@@ -173,15 +173,15 @@ function addVertices(resource, dependencies, type, prefix) {
 
 function getDependencies(template, resource) {
   const dependencies = [];
-  jsonUtil.findAllValues(template.Resources[resource], dependencies, "Ref");
-  jsonUtil.findAllValues(template.Resources[resource], dependencies, "Fn::Sub");
-  jsonUtil.findAllValues(
+  findAllValues(template.Resources[resource], dependencies, "Ref");
+  findAllValues(template.Resources[resource], dependencies, "Fn::Sub");
+  findAllValues(
     template.Resources[resource],
     dependencies,
     "Fn::GetAtt"
   );
 
-  jsonUtil.findAllValues(
+  findAllValues(
     template.Resources[resource],
     dependencies,
     "Fn::ImportValue"
@@ -190,8 +190,8 @@ function getDependencies(template, resource) {
   for (const dependency of dependencies) {
     dependency.value = dependency.value.filter((p) => {
       const split = p.split(".");
-      if (split.length === 2 && templateCache.templates[split[0]]) {
-        return templateCache.templates[split[0]].Resources[split[1]];
+      if (split.length === 2 && templates[split[0]]) {
+        return templates[split[0]].Resources[split[1]];
       }
       return template.Resources[p];
     });
@@ -232,16 +232,16 @@ function graphToXML(graph) {
           </mxfile>`;
 }
 
-function renderTemplate(template) {
+export function renderTemplate(template) {
   const xml = graphToXML(makeGraph(template));
   return xml;
 }
 
-async function generate(cmd, template) {
+export async function generate(cmd, template) {
   const ciMode = cmd.ciMode;
 
-  template = template || templateHelper.get(cmd).template;
-  jsonUtil.createPseudoResources(template);
+  template = template || get(cmd).template;
+  createPseudoResources(template);
 
   const resources = iterateResources(template);
   let types = [];
@@ -250,32 +250,32 @@ async function generate(cmd, template) {
   let resourceTypes = { answer: types };
   let resourceNames = { answer: resources };
   let edgeMode = { answer: "On" };
-  filterConfig.resourceNamesToInclude = resourceNames.answer;
-  filterConfig.resourceTypesToInclude = resourceTypes.answer;
-  filterConfig.edgeMode = edgeMode.answer;
+  resourceNamesToInclude = resourceNames.answer;
+  resourceTypesToInclude = resourceTypes.answer;
+  _edgeMode = edgeMode.answer;
 
   let actionChoice = {};
   console.log("Diagram will be written to " + cmd.outputFile);
   let backedUp = false;
-  if (fs.existsSync(cmd.outputFile)) {
-    fs.copyFileSync(cmd.outputFile, `${cmd.outputFile}.bak`);
+  if (existsSync(cmd.outputFile)) {
+    copyFileSync(cmd.outputFile, `${cmd.outputFile}.bak`);
     backedUp = true;
   }
 
   if (ciMode) {
     if (cmd.excludeTypes && Array.isArray(cmd.excludeTypes)) {
-      const filteredTypes = filterConfig.resourceTypesToInclude.filter((type) =>
+      const filteredTypes = resourceTypesToInclude.filter((type) =>
         shouldFilterFromCiTypeList(type, cmd.excludeTypes)
       );
-      filterConfig.resourceTypesToInclude = filteredTypes;
+      resourceTypesToInclude = filteredTypes;
     }
     const xml = renderTemplate(template);
-    fs.writeFileSync(cmd.outputFile, xml);
+    writeFileSync(cmd.outputFile, xml);
     return;
   }
 
   try {
-    const editor = await openInEditor.configure({
+    const editor = await configure({
       editor: "code",
     });
 
@@ -285,14 +285,14 @@ async function generate(cmd, template) {
   }
   
   while (true) {
-    filterConfig.resourceNamesToInclude = resourceNames.answer;
-    filterConfig.resourceTypesToInclude = resourceTypes.answer;
+    resourceNamesToInclude = resourceNames.answer;
+    resourceTypesToInclude = resourceTypes.answer;
 
-    filterConfig.edgeMode = edgeMode.answer;
+    _edgeMode = edgeMode.answer;
 
     const xml = renderTemplate(template);
 
-    fs.writeFileSync(cmd.outputFile, xml);
+    writeFileSync(cmd.outputFile, xml);
 
     actionChoice = await prompt({
       message: "Options",
@@ -342,9 +342,9 @@ async function generate(cmd, template) {
           name: "answer",
         });
         if (!quit.answer) {
-          fs.unlinkSync(cmd.outputFile);
+          unlinkSync(cmd.outputFile);
           if (backedUp) {
-            fs.renameSync(`${cmd.outputFile}.bak`, cmd.outputFile);
+            renameSync(`${cmd.outputFile}.bak`, cmd.outputFile);
           }
         }
         process.exit(0);
@@ -389,7 +389,7 @@ function shouldFilterFromCiTypeList(type, excludeList) {
   return !isInExcludeList;
 }
 
-module.exports = {
+export default {
   renderTemplate,
   layouts,
   reset,

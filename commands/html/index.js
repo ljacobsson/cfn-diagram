@@ -1,12 +1,11 @@
-const program = require("commander");
-const template = require("../../shared/templateParser");
-const path = require("path");
-const tempDirectory = require("temp-dir");
-const Vis = require("../../graph/Vis");
-const YAML = require("yaml-cfn");
+import command from "commander";
+import { get, isJson } from "../../shared/templateParser.js";
+import { join } from "path";
+import tempDirectory from "temp-dir";
+import { renderTemplate } from "../../graph/Vis.js";
+import YAML from "yaml-cfn";
 
-program
-  .command("html")
+command("html")
   .alias("h")
   .option(
     "-t, --template-file [templateFile]",
@@ -19,7 +18,7 @@ program
   .option(
     "-o, --output-path [outputPath]",
     "Name of output file",
-    `${path.join(tempDirectory, "cfn-diagram")}`
+    `${join(tempDirectory, "cfn-diagram")}`
   )
   .option("-co, --cdk-output [outputPath]", "CDK synth output path", `cdk.out`)
   .option("-s, --skip-synth", "Skips CDK synth", false)
@@ -27,10 +26,10 @@ program
   .description("Generates a vis.js diagram from a CloudFormation template")
   .action(async (cmd) => {
     ciMode = cmd.ciMode;
-    const templateObj = template.get(cmd);
-    await Vis.renderTemplate(
+    const templateObj = get(cmd);
+    await renderTemplate(
       templateObj.template,
-      template.isJson,
+      isJson,
       cmd.outputPath,
       ciMode,
       false,

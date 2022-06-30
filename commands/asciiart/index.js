@@ -1,11 +1,10 @@
-const program = require("commander");
-const mxGenerator = require("../../graph/MxGenerator");
-const templateParser = require("../../shared/templateParser");
-const filterConfig = require("../../resources/FilterConfig");
-const mxGraphToAsciiArt = require("./mxgraph-to-asciiart");
-const fs = require("fs");
-program
-  .command("ascii-art")
+import command from "commander";
+import { reset, renderTemplate } from "../../graph/MxGenerator.js";
+import { get } from "../../shared/templateParser.js";
+import { resourceNamesToInclude, resourceTypesToInclude } from "../../resources/FilterConfig.js";
+import { render as _render } from "./mxgraph-to-asciiart.js";
+import { watchFile } from "fs";
+command("ascii-art")
   .alias("a")
   .option(
     "-t, --template-file [templateFile]",
@@ -31,26 +30,26 @@ program
   .action(async (cmd) => {
     const xml = await render(cmd);
     if (cmd.watch) {
-      fs.watchFile(cmd.templateFile, (a, b) => {
+      watchFile(cmd.templateFile, (a, b) => {
         render(cmd);
       });
     }
   });
 async function render(cmd) {
   try {
-    const template = templateParser.get(cmd).template;
+    const template = get(cmd).template;
 
     if (!template.Resources) {
       console.log("Can't find resources");
       return;
     }
-    filterConfig.resourceNamesToInclude = Object.keys(template.Resources);
-    filterConfig.resourceTypesToInclude = Object.keys(template.Resources).map(
+    resourceNamesToInclude = Object.keys(template.Resources);
+    resourceTypesToInclude = Object.keys(template.Resources).map(
       (p) => template.Resources[p].Type
     );
-    mxGenerator.reset();
-    const xml = await mxGenerator.renderTemplate(template);
-    mxGraphToAsciiArt.render(xml);
+    reset();
+    const xml = await renderTemplate(template);
+    _render(xml);
     return xml;
   } catch (err) {
     console.log(err.message);

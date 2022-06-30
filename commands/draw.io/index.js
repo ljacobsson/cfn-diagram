@@ -1,10 +1,9 @@
-const program = require("commander");
-const mxGenerator = require("../../graph/MxGenerator");
+import command from "commander";
+import { generate } from "../../graph/MxGenerator.js";
 
 let ciMode = false;
 
-program
-  .command("draw.io")
+command("draw.io")
   .alias("d")
   .option(
     "-t, --template-file [templateFile]",
@@ -34,7 +33,7 @@ program
   )
   .description("Generates a draw.io diagram from a CloudFormation template")
   .action(async (cmd) => {
-    await mxGenerator.generate(cmd);
+    await generate(cmd);
   });
 
 

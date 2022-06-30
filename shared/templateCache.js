@@ -1,6 +1,7 @@
-const templates = {};
-let rootTemplate
-module.exports = {
-    templates,
-    rootTemplate
-}
+export const templates = {};
+export let rootTemplate;
+
+export default {
+  templates,
+  rootTemplate,
+};

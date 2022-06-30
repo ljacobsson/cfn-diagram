@@ -1,9 +1,9 @@
-let resourceTypesToInclude;
-let resourceNamesToInclude;
-let edgeStatus;
+export let resourceTypesToInclude;
+export let resourceNamesToInclude;
+export let edgeMode;
 
-module.exports = {
+export default {
     resourceTypesToInclude,
     resourceNamesToInclude, 
-    edgeMode: edgeStatus
+    edgeMode
 }

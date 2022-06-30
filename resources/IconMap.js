@@ -306,7 +306,7 @@ const serviceTranslation = {
   logs: "cloudwatch",
 };
 
-function getIcon(type) {
+export function getIcon(type) {
   let icon = icons[type];
   if (icon) {
     icon.fillColor = colors[icon.serviceType].fillColor;
@@ -325,6 +325,6 @@ function getIcon(type) {
   return `outlineConnect=0;fontColor=#B3B3B3;gradientColor=${icon.gradientColor};gradientDirection=north;fillColor=${icon.fillColor};strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=12;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=${icon.icon};`;
 }
 
-module.exports = {
+export default {
   getIcon,
 };

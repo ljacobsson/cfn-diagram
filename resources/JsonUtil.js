@@ -1,6 +1,6 @@
-const templateCache = require("../shared/templateCache");
+import { templates, rootTemplate } from "../shared/templateCache.js";
 
-function createPseudoResources(template, current) {
+export function createPseudoResources(template, current) {
   current = current || template.Resources;
   for (var k in current) {
     if (current[k] && current[k]["Fn::Join"]) {
@@ -58,7 +58,7 @@ function createPseudoResources(template, current) {
   }
 }
 
-function findAllValues(obj, keyArray, keyName, path) {
+export function findAllValues(obj, keyArray, keyName, path) {
   path = path || "$";
   for (const prop of Object.keys(obj)) {
     if (prop === keyName) {
@@ -85,9 +85,9 @@ function findAllValues(obj, keyArray, keyName, path) {
         if (split.length == 2) {
           const stackName = split[0];
           const exportName = split[1];
-          const value = templateCache.templates[stackName] ? templateCache.templates[stackName].Outputs[exportName].Value : {"Fn::ImportValue": "Unknown"};
+          const value = templates[stackName] ? templates[stackName].Outputs[exportName].Value : {"Fn::ImportValue": "Unknown"};
           const intrinsicFunction = Object.keys(value)[0];
-          const prefix = stackName === templateCache.rootTemplate ? "root" : stackName;
+          const prefix = stackName === rootTemplate ? "root" : stackName;
           values[0] = `${prefix}.${value[intrinsicFunction]}`;
         }
       }
@@ -134,7 +134,7 @@ function instrisicFunctionIndex(prop) {
   return 0;
 }
 
-function isJson(str) {
+export function isJson(str) {
   try {
     JSON.parse(str);
   } catch (e) {
@@ -143,7 +143,7 @@ function isJson(str) {
   return true;
 }
 
-function pathToDescriptor(path, filterConfig) {
+export function pathToDescriptor(path, filterConfig) {
   if (filterConfig.edgeMode === "Off") {
     return "";
   }
@@ -175,7 +175,7 @@ function pathToDescriptor(path, filterConfig) {
   return path.split(".").slice(-1)[0];
 }
 
-module.exports = {
+export default {
   createPseudoResources,
   findAllValues,
   isJson,

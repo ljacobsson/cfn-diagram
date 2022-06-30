@@ -13,7 +13,7 @@
     "cloudformation"
   ],
   "author": "mhlabs",
-  
+  "type": "module",
   "license": "ISC",
   "dependencies": {
     "@mhlabs/aws-sdk-sso": "0.0.16",

@@ -1,20 +1,20 @@
-const fs = require("fs");
-const path = require("path");
-const YAML = require("yaml-cfn");
-const jsonUtil = require("../resources/JsonUtil");
-const cp = require("child_process");
-const templateCache = require("./templateCache");
-
-function get(cmd) {
+import { readFileSync } from "fs";
+import { join } from "path";
+import { yamlParse } from "yaml-cfn";
+import jsonUtil from "../resources/JsonUtil.js";
+import { execSync } from "child_process";
+import templateCache from "./templateCache.js";
+export let isJson;
+export function get(cmd) {
   let templateString = "";
   try {
     if (cmd.templateFile === "template.yaml or cdk.json") {
       cmd.templateFile = "template.yaml";
     }
-    templateString = fs.readFileSync(cmd.templateFile);
+    templateString = readFileSync(cmd.templateFile);
   } catch {
     try {
-      templateString = fs.readFileSync("cdk.json").toString();
+      templateString = readFileSync("cdk.json").toString();
     } catch {
       console.log(
         `Can't find ${cmd.templateFile} or cdk.json. Specify location with -t flag, for example 'cfn-dia html -t mytemplate.yaml'`
@@ -23,8 +23,8 @@ function get(cmd) {
     }
   }
 
-  const isJson = jsonUtil.isJson(templateString);
-  const parser = isJson ? JSON.parse : YAML.yamlParse;
+  isJson = jsonUtil.isJson(templateString);
+  const parser = isJson ? JSON.parse : yamlParse;
 
   let template = parser(templateString);
   if (template.app) {
@@ -41,9 +41,9 @@ function get(cmd) {
         typeof res.Properties.TemplateURL === "string" &&
         !res.Properties.TemplateURL.startsWith("s3://")
       ) {
-        templateString = fs.readFileSync(res.Properties.TemplateURL);
+        templateString = readFileSync(res.Properties.TemplateURL);
         const isJson = jsonUtil.isJson(templateString);
-        const parser = isJson ? JSON.parse : YAML.yamlParse;
+        const parser = isJson ? JSON.parse : yamlParse;
         const parsedTemplate = parser(templateString);
         template.Resources[p].Template = parsedTemplate;
         templateCache.templates[p] = parsedTemplate;
@@ -92,25 +92,25 @@ function get(cmd) {
 
 function fromCDK(cmd) {
   if (!cmd.skipSynth) {
-    cp.execSync("cdk synth -o " + cmd.cdkOutput);
+    execSync("cdk synth -o " + cmd.cdkOutput);
   }
-  const manifestFile = fs.readFileSync(path.join(cmd.cdkOutput, "manifest.json"));
-  const treeFile = fs.readFileSync(path.join(cmd.cdkOutput, "tree.json"));
+  const manifestFile = readFileSync(join(cmd.cdkOutput, "manifest.json"));
+  const treeFile = readFileSync(join(cmd.cdkOutput, "tree.json"));
   const manifest = JSON.parse(manifestFile);
   const tree = JSON.parse(treeFile);
   const includeStacks = cmd.stacks ? cmd.stacks.split(",").map(p=>p.trim()) : null;
   let stacks = Object.keys(manifest.artifacts).filter((p) => p !== "Tree" && (!includeStacks || includeStacks.includes(p)));
   const parentStack = Object.keys(tree.tree.children).filter((p) => p !== "Tree" && !p.includes(".assets") && (!includeStacks || includeStacks.includes(p)))[0];
-  const template = fs.readFileSync(
-    path.join(cmd.cdkOutput, `${parentStack}.template.json`)
+  const template = readFileSync(
+    join(cmd.cdkOutput, `${parentStack}.template.json`)
   );
   const parsedTemplate = JSON.parse(template);
   templateCache.templates[parentStack] = parsedTemplate;
   templateCache.rootTemplate = parentStack;
   stacks = stacks.filter(p => p != parentStack);
   for (const stack of stacks.filter(p => !p.endsWith(".assets"))) {
-    const childTemplate = fs.readFileSync(
-      path.join(cmd.cdkOutput, `${stack}.template.json`)
+    const childTemplate = readFileSync(
+      join(cmd.cdkOutput, `${stack}.template.json`)
     );
     const parsedChildTemplate = JSON.parse(childTemplate);
     parsedTemplate.Resources[stack] = {
@@ -123,6 +123,6 @@ function fromCDK(cmd) {
   return parsedTemplate;
 }
 
-module.exports = {
+export default {
   get,
 };
