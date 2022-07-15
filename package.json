@@ -1,6 +1,6 @@
 {
   "name": "@mhlabs/cfn-diagram",
-  "version": "1.1.35",
+  "version": "1.1.36",
   "description": "CLI tool to visualise CloudFormation, SAM or CDK stacks as draw.io, visjs networks, ascii-art or mermaid",
   "main": "index.js",
   "scripts": {
