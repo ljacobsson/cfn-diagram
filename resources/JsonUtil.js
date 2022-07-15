@@ -4,7 +4,10 @@ function createPseudoResources(template, current) {
   current = current || template.Resources;
   for (var k in current) {
     if (current[k] && current[k]["Fn::Join"]) {
-      const joinList = current[k]["Fn::Join"][1];
+      let joinList = current[k]["Fn::Join"][1];
+      if (!Array.isArray(joinList)) {
+        joinList = [joinList];
+      }
       if (
         joinList.filter(
           (p) => typeof p === "object" && (!p.Ref || !p.Ref.startsWith("AWS::"))
