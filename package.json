@@ -24,7 +24,7 @@
     "color-hash": "^1.0.3",
     "commander": "^7.1.0",
     "fast-xml-parser": "^3.20.3",
-    "inquirer": "^8.2.0",
+    "inquirer": "^9.1.1",
     "jdom": "^3.1.11",
     "jsdom": "^16.4.0",
     "mxgraph": "^4.1.1",
