@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@aws-cdk/core": "^1.87.1",
-    "jest": "^27.3.1",
+    "jest": "^29.2.2",
     "node-notifier": ">=8.0.1"
   },
   "bin": {
