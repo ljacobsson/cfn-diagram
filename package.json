@@ -30,7 +30,7 @@
     "open": "^8.4.0",
     "open-in-editor": "^2.2.0",
     "temp-dir": "^2.0.0",
-    "yaml-cfn": "^0.2.3"
+    "yaml-cfn": "^0.3.2"
   },
   "devDependencies": {
     "@aws-cdk/core": "^1.19.0",
