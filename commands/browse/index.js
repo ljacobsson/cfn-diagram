@@ -1,15 +1,13 @@
 const program = require("commander");
-const template = require("../../shared/templateParser");
 const Vis = require("../../graph/Vis");
 const draw = require("../../graph/MxGenerator");
-const AWS = require("aws-sdk");
-const cloudFormation = new AWS.CloudFormation();
+const { CloudFormationClient, ListStacksCommand, GetTemplateCommand } = require("@aws-sdk/client-cloudformation");
 const inquirer = require("inquirer");
 const prompt = inquirer.createPromptModule();
 const YAML = require("yaml-cfn");
 const jsonUtil = require("../../resources/JsonUtil");
+const { fromSSO } = require("@aws-sdk/credential-provider-sso");
 
-require("@mhlabs/aws-sdk-sso");
 program
   .command("browse")
   .alias("b")
@@ -19,16 +17,18 @@ program
   .option("-r --region [region]", "AWS region")
   .description("Browses and generates diagrams from your deployed templates")
   .action(async (cmd) => {
-    initAuth(cmd);
+
+    const credentials = await fromSSO({ profile: cmd.profile || 'default' })();
+
+    const cloudFormation = new CloudFormationClient({ credentials, region: cmd.region || process.env.AWS_REGION });
+
     let nextToken = null;
     const stackList = [];
     do {
-      const response = await cloudFormation
-        .listStacks({
-          NextToken: nextToken,
-          StackStatusFilter: ["CREATE_COMPLETE", "UPDATE_COMPLETE"],
-        })
-        .promise();
+      const response = await cloudFormation.send(new ListStacksCommand({
+        NextToken: nextToken,
+        StackStatusFilter: ["CREATE_COMPLETE", "UPDATE_COMPLETE"],
+      }));
       stackList.push(...response.StackSummaries.map((p) => p.StackName));
       nextToken = response.NextToken;
     } while (nextToken);
@@ -39,9 +39,7 @@ program
         choices: stackList.sort(),
       });
       const templateBody = (
-        await cloudFormation
-          .getTemplate({ StackName: stack.stackName })
-          .promise()
+        await cloudFormation.send(new GetTemplateCommand({ StackName: stack.stackName }))
       ).TemplateBody;
       const isJson = jsonUtil.isJson(templateBody);
       const parser = isJson ? JSON.parse : YAML.yamlParse;
@@ -61,11 +59,3 @@ program
       }
     }
   });
-
-function initAuth(cmd) {
-  process.env.AWS_PROFILE = cmd.profile || process.env.AWS_PROFILE || "default";
-  process.env.AWS_REGION = cmd.region || process.env.AWS_REGION;
-  AWS.config.credentialProvider.providers.unshift(
-    new AWS.SingleSignOnCredentials()
-  );
-}

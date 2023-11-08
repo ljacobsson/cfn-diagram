@@ -13,17 +13,16 @@
     "cloudformation"
   ],
   "author": "mhlabs",
-  
   "license": "ISC",
   "dependencies": {
-    "@mhlabs/aws-sdk-sso": "0.0.16",
+    "@aws-sdk/client-cloudformation": "^3.445.0",
+    "@aws-sdk/credential-provider-sso": "^3.445.0",
     "aws-icons-directory": "^0.0.6",
-    "aws-sdk": "^2.808.0",
     "cli-color": "^2.0.0",
     "color-convert": "^2.0.1",
     "color-hash": "^1.0.3",
     "commander": "^7.1.0",
-    "fast-xml-parser": "^3.20.3",
+    "fast-xml-parser": "^4.3.2",
     "inquirer": "^8.2.0",
     "jdom": "^3.1.11",
     "jsdom": "^16.4.0",
@@ -34,7 +33,7 @@
     "yaml-cfn": "^0.2.3"
   },
   "devDependencies": {
-    "@aws-cdk/core": "^1.87.1",
+    "@aws-cdk/core": "^1.19.0",
     "jest": "^27.3.1",
     "node-notifier": ">=8.0.1"
   },
