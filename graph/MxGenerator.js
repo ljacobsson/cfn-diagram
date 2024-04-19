@@ -22,8 +22,11 @@ const YAML = require("yaml-cfn");
 global.window = dom.window;
 global.document = window.document;
 global.XMLSerializer = window.XMLSerializer;
-global.navigator = window.navigator;
-
+Object.defineProperty(global, 'navigator', {
+  value: window.navigator,
+  writable: true,
+  configurable: true
+});
 const mxgraph = require("mxgraph")({});
 const { mxGraph, mxCodec, mxUtils } = mxgraph;
 
